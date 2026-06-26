@@ -16,3 +16,8 @@ history.json
 
 # Default download folder
 downloads/
+
+# Python packaging and distribution
+build/
+dist/
+*.egg-info/
