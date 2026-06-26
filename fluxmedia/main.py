@@ -47,7 +47,7 @@ try:
     from importlib.metadata import version
     CURRENT_VERSION = version("fluxmedia")
 except Exception:
-    CURRENT_VERSION = "1.3.0"
+    CURRENT_VERSION = "1.3.1"
 
 LATEST_VERSION = None
 
@@ -1892,6 +1892,25 @@ def clear_finished_queue():
     console.print(f"[bold green]Cleared {cleared} finished task(s) from the queue.[/bold green]")
     Prompt.ask("\nPress Enter to continue...")
 
+def reset_failed_tasks():
+    """Resets all Failed tasks in the queue to Pending so they can be processed again."""
+    print_header()
+    console.print("\n[bold cyan]=== RESET FAILED TASKS ===[/bold cyan]\n")
+    
+    queue = load_queue()
+    reset_count = 0
+    for item in queue:
+        if item.get("status") == "Failed":
+            item["status"] = "Pending"
+            reset_count += 1
+            
+    if reset_count > 0:
+        save_queue(queue)
+        console.print(f"[bold green]Successfully reset {reset_count} failed task(s) to Pending.[/bold green]")
+    else:
+        console.print("[yellow]No failed tasks found in the queue.[/yellow]")
+    Prompt.ask("\nPress Enter to continue...")
+
 def operation_download_queue(config: Dict[str, Any]):
     """Provides a management interface for the download queue / batch manager."""
     while True:
@@ -1941,9 +1960,10 @@ def operation_download_queue(config: Dict[str, Any]):
         console.print("3. Add Audio to Queue")
         console.print("4. Remove Item from Queue")
         console.print("5. Clear Finished Tasks")
-        console.print("6. Return to Main Menu")
+        console.print("6. Reset Failed Tasks to Pending")
+        console.print("7. Return to Main Menu")
         
-        choice = Prompt.ask("Choose an option", choices=["1", "2", "3", "4", "5", "6"], default="6")
+        choice = Prompt.ask("Choose an option", choices=["1", "2", "3", "4", "5", "6", "7"], default="7")
         
         if choice == "1":
             process_download_queue(config)
@@ -1956,6 +1976,8 @@ def operation_download_queue(config: Dict[str, Any]):
         elif choice == "5":
             clear_finished_queue()
         elif choice == "6":
+            reset_failed_tasks()
+        elif choice == "7":
             break
 
 def operation_update_fluxmedia():
@@ -1998,6 +2020,11 @@ def operation_update_fluxmedia():
         else:
             console.print("[bold red]Upgrade failed.[/bold red]")
             console.print(f"[red]Error details:[/red]\n{result.stderr}")
+            if platform.system() == "Windows" and any(err in result.stderr for err in ["WinError 32", "PermissionError", "WinError 5", "Access is denied"]):
+                console.print("\n[bold yellow]💡 Tip for Windows Users:[/bold yellow]")
+                console.print("The application files are currently locked because FluxMedia is running.")
+                console.print("Please exit the application and update it from your terminal by running:")
+                console.print("  [bold cyan]pip install -U fluxmedia[/bold cyan]\n")
             Prompt.ask("\nPress Enter to return to menu...")
     except Exception as e:
         console.print(f"[bold red]An error occurred during update: {e}[/bold red]")
@@ -2029,6 +2056,11 @@ def operation_upgrade_dependencies():
             console.print("[bold red][FAILED] Dependency upgrade failed.[/bold red]")
             console.print(f"[red]Error details:[/red]\n{result.stderr}")
             logger.error(f"Dependency upgrade failed: {result.stderr}")
+            if platform.system() == "Windows" and any(err in result.stderr for err in ["WinError 32", "PermissionError", "WinError 5", "Access is denied"]):
+                console.print("\n[bold yellow]💡 Tip for Windows Users:[/bold yellow]")
+                console.print("Some dependency files are currently locked because they are in use by FluxMedia.")
+                console.print("Please exit the application and upgrade the dependencies from your terminal by running:")
+                console.print("  [bold cyan]pip install -U yt-dlp requests rich[/bold cyan]\n")
     except Exception as e:
         console.print(f"[bold red]An error occurred during upgrade: {e}[/bold red]")
         logger.error(f"Error upgrading dependencies: {e}")
