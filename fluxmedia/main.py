@@ -47,7 +47,7 @@ try:
     from importlib.metadata import version
     CURRENT_VERSION = version("fluxmedia")
 except Exception:
-    CURRENT_VERSION = "1.3.2"
+    CURRENT_VERSION = "1.3.3"
 
 LATEST_VERSION = None
 
@@ -369,6 +369,19 @@ def normalize_and_validate_url(url: str) -> Optional[str]:
         pass
     return None
 
+def prompt_destination_dir(default_dir: str) -> Optional[str]:
+    """Prompts the user for a destination folder, validates, and creates it if it doesn't exist."""
+    while True:
+        dest_dir = Prompt.ask("Enter destination folder (or press Enter to use default)", default=default_dir)
+        dest_dir = os.path.abspath(dest_dir)
+        try:
+            os.makedirs(dest_dir, exist_ok=True)
+            return dest_dir
+        except Exception as e:
+            console.print(f"[bold red]Error: Failed to create or access directory '{dest_dir}': {e}[/bold red]")
+            if not Confirm.ask("Do you want to specify a different folder?", default=True):
+                return None
+
 def get_format_string(quality: str, ffmpeg_available: bool) -> str:
     """Gets format mapping string optimized for the environment."""
     if not ffmpeg_available:
@@ -562,9 +575,9 @@ def operation_download_video(config: Dict[str, Any]):
     }
     selected_quality = quality_map[quality_choice]
     
-    dest_dir = Prompt.ask("Enter destination folder (or press Enter to use default)", default=config["download_dir"])
-    dest_dir = os.path.abspath(dest_dir)
-    os.makedirs(dest_dir, exist_ok=True)
+    dest_dir = prompt_destination_dir(config["download_dir"])
+    if not dest_dir:
+        return
     
     ffmpeg_available = shutil.which("ffmpeg") is not None
     format_str = get_format_string(selected_quality, ffmpeg_available)
@@ -666,9 +679,9 @@ def operation_download_audio(config: Dict[str, Any]):
     if not check_internet():
         console.print("[bold yellow]Warning: Internet check failed. Proceeding anyway...[/bold yellow]")
         
-    dest_dir = Prompt.ask("Enter destination folder (or press Enter to use default)", default=config["download_dir"])
-    dest_dir = os.path.abspath(dest_dir)
-    os.makedirs(dest_dir, exist_ok=True)
+    dest_dir = prompt_destination_dir(config["download_dir"])
+    if not dest_dir:
+        return
     
     ffmpeg_available = shutil.which("ffmpeg") is not None
     if not ffmpeg_available:
@@ -760,9 +773,9 @@ def operation_download_playlist(config: Dict[str, Any]):
     if not check_internet():
         console.print("[bold yellow]Warning: Internet check failed. Proceeding anyway...[/bold yellow]")
         
-    dest_dir = Prompt.ask("Enter destination folder (or press Enter to use default)", default=config["download_dir"])
-    dest_dir = os.path.abspath(dest_dir)
-    os.makedirs(dest_dir, exist_ok=True)
+    dest_dir = prompt_destination_dir(config["download_dir"])
+    if not dest_dir:
+        return
     
     ffmpeg_available = shutil.which("ffmpeg") is not None
     format_str = get_format_string(config["default_quality"], ffmpeg_available)
@@ -854,9 +867,9 @@ def operation_download_channel(config: Dict[str, Any]):
             break
         console.print("[bold red]Error: Limit must be a non-negative integer.[/bold red]")
     
-    dest_dir = Prompt.ask("Enter destination folder (or press Enter to use default)", default=config["download_dir"])
-    dest_dir = os.path.abspath(dest_dir)
-    os.makedirs(dest_dir, exist_ok=True)
+    dest_dir = prompt_destination_dir(config["download_dir"])
+    if not dest_dir:
+        return
     
     ffmpeg_available = shutil.which("ffmpeg") is not None
     format_str = get_format_string(config["default_quality"], ffmpeg_available)
@@ -947,9 +960,9 @@ def operation_download_subtitles(config: Dict[str, Any]):
         
     lang = Prompt.ask("Enter subtitle language code (e.g., 'en', 'es', 'fr', 'zh')", default="en").strip().lower()
     
-    dest_dir = Prompt.ask("Enter destination folder (or press Enter to use default)", default=config["download_dir"])
-    dest_dir = os.path.abspath(dest_dir)
-    os.makedirs(dest_dir, exist_ok=True)
+    dest_dir = prompt_destination_dir(config["download_dir"])
+    if not dest_dir:
+        return
     
     ydl_opts = {
         'skip_download': True,
@@ -1511,9 +1524,9 @@ def operation_search_and_download_video(config: Dict[str, Any]):
         }
         selected_quality = quality_map[quality_choice]
         
-        dest_dir = Prompt.ask("Enter destination folder (or press Enter to use default)", default=config["download_dir"])
-        dest_dir = os.path.abspath(dest_dir)
-        os.makedirs(dest_dir, exist_ok=True)
+        dest_dir = prompt_destination_dir(config["download_dir"])
+        if not dest_dir:
+            return
         
         ffmpeg_available = shutil.which("ffmpeg") is not None
         format_str = get_format_string(selected_quality, ffmpeg_available)
@@ -1699,9 +1712,9 @@ def add_to_queue_interactive(config: Dict[str, Any], item_type: str):
         quality_map = {"1": "1080p", "2": "720p", "3": "480p", "4": "best"}
         quality = quality_map[q_choice]
     
-    dest_dir = Prompt.ask("Enter destination folder (or press Enter to use default)", default=config["download_dir"])
-    dest_dir = os.path.abspath(dest_dir)
-    os.makedirs(dest_dir, exist_ok=True)
+    dest_dir = prompt_destination_dir(config["download_dir"])
+    if not dest_dir:
+        return
     
     queue = load_queue()
     next_id = max([item["id"] for item in queue], default=0) + 1
