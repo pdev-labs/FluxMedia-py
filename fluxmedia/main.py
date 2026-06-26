@@ -47,7 +47,7 @@ try:
     from importlib.metadata import version
     CURRENT_VERSION = version("fluxmedia")
 except Exception:
-    CURRENT_VERSION = "1.2.1"
+    CURRENT_VERSION = "1.3.0"
 
 LATEST_VERSION = None
 
@@ -2003,6 +2003,61 @@ def operation_update_fluxmedia():
         console.print(f"[bold red]An error occurred during update: {e}[/bold red]")
         Prompt.ask("\nPress Enter to return to menu...")
 
+def operation_upgrade_dependencies():
+    """Upgrades all required packages (rich, requests, yt-dlp) via pip."""
+    print_header()
+    console.print("\n[bold cyan]=== UPGRADE DEPENDENCIES ===[/bold cyan]\n")
+    
+    if not check_internet():
+        console.print("[bold red]Error: No internet connection detected. Cannot perform upgrade.[/bold red]")
+        Prompt.ask("\nPress Enter to return...")
+        return
+        
+    console.print("Running: [bold cyan]pip install -U yt-dlp requests rich[/bold cyan]...")
+    try:
+        with console.status("[bold green]Upgrading dependencies... Please wait.", spinner="dots") as status:
+            result = subprocess.run(
+                [sys.executable, "-m", "pip", "install", "-U", "yt-dlp", "requests", "rich"],
+                capture_output=True,
+                text=True
+            )
+            
+        if result.returncode == 0:
+            console.print("[bold green][SUCCESS] All dependencies upgraded successfully![/bold green]")
+            logger.info("Successfully upgraded dependencies: yt-dlp, requests, rich")
+        else:
+            console.print("[bold red][FAILED] Dependency upgrade failed.[/bold red]")
+            console.print(f"[red]Error details:[/red]\n{result.stderr}")
+            logger.error(f"Dependency upgrade failed: {result.stderr}")
+    except Exception as e:
+        console.print(f"[bold red]An error occurred during upgrade: {e}[/bold red]")
+        logger.error(f"Error upgrading dependencies: {e}")
+        
+    Prompt.ask("\nPress Enter to continue...")
+
+def operation_updates_manager(config: Dict[str, Any]):
+    """Renders the Updates & Maintenance sub-menu for upgrading engine, app, or dependencies."""
+    while True:
+        print_header()
+        console.print("\n[bold cyan]=== UPDATE & MAINTENANCE ===[/bold cyan]\n")
+        
+        console.print("[bold]Available Options:[/bold]")
+        console.print("1. Update yt-dlp (Media Download Engine)")
+        console.print("2. Update FluxMedia (This Application)")
+        console.print("3. Upgrade All Dependencies (rich, requests, etc.)")
+        console.print("4. Back to Main Menu")
+        
+        choice = Prompt.ask("Choose an option", choices=["1", "2", "3", "4"], default="4")
+        
+        if choice == "1":
+            operation_update_ytdlp()
+        elif choice == "2":
+            operation_update_fluxmedia()
+        elif choice == "3":
+            operation_upgrade_dependencies()
+        elif choice == "4":
+            break
+
 def main():
     """Primary routing flow block."""
     check_fluxmedia_update_sync()
@@ -2042,10 +2097,9 @@ def main():
         menu_table.add_row("[bold cyan]3.[/bold cyan] Download Audio", "[bold cyan]4.[/bold cyan] Download Playlist")
         menu_table.add_row("[bold cyan]5.[/bold cyan] Download Channel Videos", "[bold cyan]6.[/bold cyan] Download Subtitles")
         menu_table.add_row("[bold cyan]7.[/bold cyan] View Download History", "[bold cyan]8.[/bold cyan] Download Queue")
-        menu_table.add_row("[bold cyan]9.[/bold cyan] Settings", "[bold cyan]10.[/bold cyan] Update yt-dlp")
+        menu_table.add_row("[bold cyan]9.[/bold cyan] Settings", "[bold cyan]10.[/bold cyan] Update & Maintenance")
         menu_table.add_row("[bold cyan]11.[/bold cyan] Open Downloads Folder", "[bold cyan]12.[/bold cyan] About Creator")
-        menu_table.add_row("[bold cyan]13.[/bold cyan] Report Bug / Feedback", "[bold cyan]14.[/bold cyan] Update FluxMedia")
-        menu_table.add_row("[bold red]15.[/bold red] Exit", "")
+        menu_table.add_row("[bold cyan]13.[/bold cyan] Report Bug / Feedback", "[bold red]14.[/bold red] Exit")
         
         console.print(Panel(
             menu_table,
@@ -2054,7 +2108,7 @@ def main():
             padding=(1, 4)
         ))
         
-        choice = Prompt.ask("Choose an option", choices=[str(i) for i in range(1, 16)], default="15")
+        choice = Prompt.ask("Choose an option", choices=[str(i) for i in range(1, 15)], default="14")
         
         try:
             if choice == "1":
@@ -2076,7 +2130,7 @@ def main():
             elif choice == "9":
                 config = operation_settings(config)
             elif choice == "10":
-                operation_update_ytdlp()
+                operation_updates_manager(config)
             elif choice == "11":
                 operation_open_downloads_folder(config)
             elif choice == "12":
@@ -2084,8 +2138,6 @@ def main():
             elif choice == "13":
                 operation_report_bug_feedback()
             elif choice == "14":
-                operation_update_fluxmedia()
-            elif choice == "15":
                 console.print("\n[bold green]Thank you for using FluxMedia! Goodbye.[/bold green]")
                 break
         except KeyboardInterrupt:
