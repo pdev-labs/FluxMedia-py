@@ -731,46 +731,76 @@ def print_header():
     
     detected_os = detect_os()
     
-    # logo header
-    logo = Text()
-    logo.append("  ___ _       _   _ __  __          _ _      \n", style="bold cyan")
-    logo.append(" | __| |_  ___| | | |  \\/  |___  __| (_)__ _ \n", style="bold deep_sky_blue1")
-    logo.append(" | _|| | || \\ \\ / / | |\\/| / -_)/ _` | / _` |\n", style="bold dodger_blue1")
-    logo.append(" |_| |_|\\_,_/ \\_/  |_|  |_\\___|\\__,_|_\\__,_|", style="bold blue")
-    
-    header_grid = Table.grid(expand=True)
-    header_grid.add_column(justify="left", ratio=1)
-    header_grid.add_column(justify="right", ratio=1)
-    
-    left_text = Text()
-    left_text.append("🌊 FluxMedia Downloader\n", style="bold cyan")
-    left_text.append("💻 OS: ", style="dim")
-    left_text.append(detected_os, style="bold magenta")
-    
-    right_text = Text()
-    right_text.append(f"v{CURRENT_VERSION}\n", style="bold white")
-    
-    ffmpeg_available = shutil.which("ffmpeg") is not None
-    if ffmpeg_available:
-        right_text.append("FFmpeg: ", style="dim")
-        right_text.append("Active\n", style="bold green")
-    else:
-        inst_cmd = get_ffmpeg_install_instruction()
-        right_text.append("FFmpeg: ", style="dim")
-        right_text.append("Inactive", style="bold yellow")
-        right_text.append(f" (Run '{inst_cmd}')\n", style="dim")
+    # logo header and metadata layout are responsive based on console width
+    if console.width >= 80:
+        logo = Text()
+        logo.append("  ___ _       _   _ __  __          _ _      \n", style="bold cyan")
+        logo.append(" | __| |_  ___| | | |  \\/  |___  __| (_)__ _ \n", style="bold deep_sky_blue1")
+        logo.append(" | _|| | || \\ \\ / / | |\\/| / -_)/ _` | / _` |\n", style="bold dodger_blue1")
+        logo.append(" |_| |_|\\_,_/ \\_/  |_|  |_\\___|\\__,_|_\\__,_|", style="bold blue")
+        logo_element = Align.center(logo)
         
-    if is_new_version_available(CURRENT_VERSION, LATEST_VERSION):
-        right_text.append("Update: ", style="dim")
-        right_text.append("Available!", style="bold yellow")
-    else:
-        right_text.append("Update: ", style="dim")
-        right_text.append("Up to date", style="bold green")
+        header_grid = Table.grid(expand=True)
+        header_grid.add_column(justify="left", ratio=1)
+        header_grid.add_column(justify="right", ratio=1)
         
-    header_grid.add_row(left_text, right_text)
-    
+        left_text = Text()
+        left_text.append("🌊 FluxMedia Downloader\n", style="bold cyan")
+        left_text.append("💻 OS: ", style="dim")
+        left_text.append(detected_os, style="bold magenta")
+        
+        right_text = Text()
+        right_text.append(f"v{CURRENT_VERSION}\n", style="bold white")
+        
+        ffmpeg_available = shutil.which("ffmpeg") is not None
+        if ffmpeg_available:
+            right_text.append("FFmpeg: ", style="dim")
+            right_text.append("Active\n", style="bold green")
+        else:
+            inst_cmd = get_ffmpeg_install_instruction()
+            right_text.append("FFmpeg: ", style="dim")
+            right_text.append("Inactive", style="bold yellow")
+            right_text.append(f" (Run '{inst_cmd}')\n", style="dim")
+            
+        if is_new_version_available(CURRENT_VERSION, LATEST_VERSION):
+            right_text.append("Update: ", style="dim")
+            right_text.append("Available!", style="bold yellow")
+        else:
+            right_text.append("Update: ", style="dim")
+            right_text.append("Up to date", style="bold green")
+            
+        header_grid.add_row(left_text, right_text)
+    else:
+        logo_element = None
+        header_grid = Table.grid(expand=True)
+        header_grid.add_column(justify="center", ratio=1)
+        
+        mid_text = Text()
+        mid_text.append("🌊 FluxMedia Downloader ", style="bold cyan")
+        mid_text.append(f"v{CURRENT_VERSION}\n", style="bold white")
+        mid_text.append("💻 OS: ", style="dim")
+        mid_text.append(f"{detected_os}\n", style="bold magenta")
+        
+        ffmpeg_available = shutil.which("ffmpeg") is not None
+        mid_text.append("⚙️ FFmpeg: ", style="dim")
+        if ffmpeg_available:
+            mid_text.append("Active", style="bold green")
+        else:
+            mid_text.append("Inactive", style="bold yellow")
+            
+        mid_text.append("  |  ", style="bold gray30")
+        
+        mid_text.append("🔄 Update: ", style="dim")
+        if is_new_version_available(CURRENT_VERSION, LATEST_VERSION):
+            mid_text.append("Available!", style="bold yellow")
+        else:
+            mid_text.append("Up to date", style="bold green")
+            
+        header_grid.add_row(Align.center(mid_text))
+        
     container_grid = Table.grid(expand=True, padding=(1, 0))
-    container_grid.add_row(Align.center(logo))
+    if logo_element:
+        container_grid.add_row(logo_element)
     container_grid.add_row(Panel(header_grid, border_style="blue", padding=(0, 2)))
     
     console.print(Panel(
