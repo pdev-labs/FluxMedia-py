@@ -1623,43 +1623,48 @@ def open_folder_android(dest_dir: str) -> bool:
     rel_path = None
     for prefix in ["/storage/emulated/0/", "/sdcard/", os.path.expanduser("~/storage/shared/")]:
         if abs_path.startswith(prefix):
-            rel_path = abs_path[len(prefix):].replace("\\", "/")
+            rel_path = abs_path[len(prefix):].replace("\\", "/").strip("/")
             break
             
     if not rel_path:
         if "/storage/emulated/0/" in abs_path:
-            rel_path = abs_path.split("/storage/emulated/0/")[-1].replace("\\", "/")
+            rel_path = abs_path.split("/storage/emulated/0/")[-1].replace("\\", "/").strip("/")
         elif "/sdcard/" in abs_path:
-            rel_path = abs_path.split("/sdcard/")[-1].replace("\\", "/")
+            rel_path = abs_path.split("/sdcard/")[-1].replace("\\", "/").strip("/")
+
+    from urllib.parse import quote
+    doc_id = "primary:" + (rel_path if rel_path else "Download")
+    uri = f"content://com.android.externalstorage.documents/document/{quote(doc_id)}"
 
     if choice == "1":
         # Android DocumentsUI content URI format
-        uri = "content://com.android.externalstorage.documents/document/primary:"
-        if rel_path:
-            from urllib.parse import quote
-            uri += quote(rel_path)
-        else:
-            uri += "Download"
-            
         cmd = ["am", "start", "-a", "android.intent.action.VIEW", "-d", uri]
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0:
             console.print("[bold green]Google Files opened successfully![/bold green]")
             return True
-        else:
-            console.print("[yellow]Could not launch default Files app. Retrying with generic intent chooser...[/yellow]")
-            choice = "2"
+            
+        # Try package-specific documentsui FilesActivity intent
+        cmd2 = ["am", "start", "-n", "com.google.android.documentsui/com.android.documentsui.files.FilesActivity", "-d", uri]
+        result2 = subprocess.run(cmd2, capture_output=True, text=True)
+        if result2.returncode == 0:
+            console.print("[bold green]Google Files opened successfully![/bold green]")
+            return True
+            
+        console.print("[yellow]Could not launch default Files app. Retrying with generic intent chooser...[/yellow]")
+        choice = "2"
 
     if choice == "2":
         if shutil.which("termux-open"):
-            cmd = ["termux-open", abs_path]
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            if result.returncode == 0:
+            try:
+                subprocess.run(["termux-open", abs_path])
                 console.print("[bold green]File Manager launched successfully![/bold green]")
                 return True
+            except Exception:
+                pass
                 
-        # Fallback to general VIEW intent
-        cmd = ["am", "start", "-a", "android.intent.action.VIEW", "-d", f"file://{abs_path}", "-t", "*/*"]
+        # Fallback to general VIEW intent using content URI (avoids FileUriExposedException)
+        cmd = ["am", "start", "-a", "android.intent.action.VIEW", "-d", uri]
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0:
             console.print("[bold green]File Manager launched successfully![/bold green]")
