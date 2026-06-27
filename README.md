@@ -53,10 +53,10 @@ If you find this tool helpful, please support my work by giving it a star on Git
 ---
 
 ## 🐛 Bugs, Errors & Feedback
-Got an issue, bug, or feature request? We would love to hear from you! Please file reports directly at:
+Got an issue, bug, or feature request? I would love to hear from you! Please file reports directly at:
 👉 **[FluxMedia Issue Tracker](https://github.com/pdev-labs/FluxMedia-py/issues)**
 
-To help us resolve errors quickly, please:
+To help me resolve errors quickly, please:
 1. Search active issues first to avoid duplicate bug tickets.
 2. Provide details about your Operating System and whether FFmpeg is installed.
 3. Paste logs or stderr dumps. (Local execution logs are saved inside your home directory under `~/.fluxmedia/fluxmedia.log`).
