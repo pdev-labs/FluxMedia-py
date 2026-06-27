@@ -4,6 +4,12 @@ All notable changes to the **FluxMedia** project are documented in this file.
 
 ---
 
+## [v1.4.0] - 2026-06-27
+### Added
+- **Interactive Troubleshooting Guide**: Implemented Option 15 directly inside the CLI main menu dashboard. Users can now view comprehensive resolution details and copy shell command overrides directly inside their terminal for various errors (SSL verification, slow speeds, 403 Forbidden age walls, local network firewall adjustments, Android folder setup commands, and pip lockups).
+
+---
+
 ## [v1.3.9] - 2026-06-27
 ### Added
 - **Trimmer FFmpeg Blocker**: Direct validation check that halts the download segment trimmer if FFmpeg is missing, outputting step-by-step install commands instead of throwing a yt-dlp runtime stack trace.
