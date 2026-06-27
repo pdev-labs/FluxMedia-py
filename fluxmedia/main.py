@@ -244,7 +244,7 @@ try:
     from importlib.metadata import version
     CURRENT_VERSION = version("fluxmedia")
 except Exception:
-    CURRENT_VERSION = "1.3.5"
+    CURRENT_VERSION = "1.3.6"
 
 LATEST_VERSION = None
 
@@ -2737,7 +2737,15 @@ def operation_update_fluxmedia():
             console.print("[bold green]Successfully updated FluxMedia![/bold green]")
             console.print("Restarting application to apply changes...\n")
             try:
-                os.execv(sys.executable, [sys.executable] + sys.argv)
+                exe_path = sys.argv[0]
+                if sys.platform.startswith('win') and not exe_path.lower().endswith('.exe'):
+                    if os.path.exists(exe_path + '.exe'):
+                        exe_path += '.exe'
+                        
+                if exe_path.endswith(('.py', '.pyw', '__main__.py')):
+                    os.execv(sys.executable, [sys.executable] + sys.argv)
+                else:
+                    os.execv(exe_path, [exe_path] + sys.argv[1:])
             except Exception:
                 console.print("[yellow]Please close and restart the application manually.[/yellow]")
                 Prompt.ask("\nPress Enter to exit...")
