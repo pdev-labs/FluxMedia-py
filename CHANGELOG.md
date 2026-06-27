@@ -4,6 +4,13 @@ All notable changes to the **FluxMedia** project are documented in this file.
 
 ---
 
+## [v1.4.1] - 2026-06-27
+### Added
+- **Detailed OS-specific Troubleshooting FAQ Guides**: Expanded the interactive Troubleshooting Guide menu with options covering Windows-specific PATH setup/MSVC/long paths, macOS Gatekeeper/Homebrew setup, Linux keyring locks/missing pip packages, and Termux wake locks/C dependencies compilation.
+- **Repository Troubleshooting Link**: Embedded the online repository troubleshooting link into the FAQ console layout.
+
+---
+
 ## [v1.4.0] - 2026-06-27
 ### Added
 - **Interactive Troubleshooting Guide**: Implemented Option 15 directly inside the CLI main menu dashboard. Users can now view comprehensive resolution details and copy shell command overrides directly inside their terminal for various errors (SSL verification, slow speeds, 403 Forbidden age walls, local network firewall adjustments, Android folder setup commands, and pip lockups).
