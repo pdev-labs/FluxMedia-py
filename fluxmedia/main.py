@@ -244,7 +244,7 @@ try:
     from importlib.metadata import version
     CURRENT_VERSION = version("fluxmedia")
 except Exception:
-    CURRENT_VERSION = "1.3.8"
+    CURRENT_VERSION = "1.3.9"
 
 LATEST_VERSION = None
 
@@ -1349,7 +1349,11 @@ def operation_trim_and_download_video(config: Dict[str, Any]):
     quality = prompt_video_quality()
     ffmpeg_available = shutil.which("ffmpeg") is not None
     if not ffmpeg_available:
-        console.print("[bold yellow]Warning: FFmpeg is not installed. Trimming might fail or require full download.[/bold yellow]")
+        inst_cmd = get_ffmpeg_install_instruction()
+        console.print("[bold red]Error: FFmpeg is not installed.[/bold red]")
+        console.print(f"FFmpeg is required to trim and download video segments. Please install it first. Command: '{inst_cmd}'")
+        Prompt.ask("\nPress Enter to return...")
+        return
         
     console.print("\nEnter download segment range (formats: HH:MM:SS, MM:SS, or raw seconds).")
     start_time = Prompt.ask("Start Time", default="00:00").strip()
@@ -1579,6 +1583,14 @@ def operation_transcode_media(config: Dict[str, Any]):
     console.print("6. WebM (Video - web-friendly format)")
     
     format_choice = Prompt.ask("Choose target format", choices=["1", "2", "3", "4", "5", "6"])
+    
+    input_is_audio = selected_file.lower().endswith((".mp3", ".m4a", ".wav", ".opus", ".flac"))
+    target_is_video = format_choice in ("4", "5", "6")
+    if input_is_audio and target_is_video:
+        console.print("[bold red]Error: Cannot transcode an audio-only file into a video format.[/bold red]")
+        Prompt.ask("\nPress Enter to return...")
+        return
+        
     format_map = {
         "1": (".mp3", ["-vn", "-acodec", "libmp3lame", "-ab", "192k"]),
         "2": (".m4a", ["-vn", "-acodec", "aac", "-ab", "192k"]),
