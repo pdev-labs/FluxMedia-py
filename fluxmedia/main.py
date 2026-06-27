@@ -23,31 +23,227 @@ for stream in (sys.stdout, sys.stderr):
         except Exception:
             pass
 
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
-from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn, DownloadColumn, TransferSpeedColumn
-from rich.prompt import Prompt, Confirm, IntPrompt, PromptBase
-from rich.align import Align
-from rich.text import Text
-from rich.markup import escape
+# --- Placeholder variables for dynamic importing ---
+Console = None
+Panel = None
+Table = None
+Progress = None
+BarColumn = None
+TextColumn = None
+TimeRemainingColumn = None
+DownloadColumn = None
+TransferSpeedColumn = None
+Prompt = None
+Confirm = None
+IntPrompt = None
+PromptBase = None
+Align = None
+Text = None
+escape = None
+requests = None
+yt_dlp = None
+console = None
+box = None
 
-# Customize default rendering to format as (default: value)
-def _custom_render_default(self, default) -> Text:
-    return Text(f"(default: {default})", "prompt.default")
+def init_dependencies():
+    """Dynamically imports the required third-party packages into the global namespace."""
+    global Console, Panel, Table, Progress, BarColumn, TextColumn, TimeRemainingColumn, DownloadColumn, TransferSpeedColumn
+    global Prompt, Confirm, IntPrompt, PromptBase, Align, Text, escape, requests, yt_dlp, console, box
+    
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.table import Table
+    from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn, DownloadColumn, TransferSpeedColumn
+    from rich.prompt import Prompt, Confirm, IntPrompt, PromptBase
+    from rich.align import Align
+    from rich.text import Text
+    from rich.markup import escape
+    from rich import box
+    import requests
+    import yt_dlp
+    
+    # Customize default rendering to format as (default: value)
+    def _custom_render_default(self, default) -> Text:
+        return Text(f"(default: {default})", "prompt.default")
+    
+    PromptBase.render_default = _custom_render_default
+    console = Console()
 
-PromptBase.render_default = _custom_render_default
+def install_python_package(pkg_name: str) -> bool:
+    """Installs a python package using pip, showing clear output."""
+    try:
+        result = subprocess.run([sys.executable, "-m", "pip", "install", pkg_name], check=True)
+        return result.returncode == 0
+    except Exception as e:
+        print(f"Error installing package '{pkg_name}': {e}")
+        return False
+
+def install_ffmpeg_termux() -> bool:
+    """Installs FFmpeg on Android/Termux environment using pkg install."""
+    try:
+        result = subprocess.run(["pkg", "install", "-y", "ffmpeg"], check=True)
+        return result.returncode == 0
+    except Exception as e:
+        print(f"Error installing FFmpeg: {e}")
+        return False
+
+def verify_and_install_requirements():
+    """Checks for required third-party packages, system tools, and environment permissions, offering to install/fix them."""
+    is_termux = "ANDROID_ROOT" in os.environ or "TERMUX_VERSION" in os.environ
+    
+    requirements = [
+        {"name": "rich", "import_name": "rich", "type": "Python Package", "desc": "Terminal formatting & styling (essential)", "essential": True},
+        {"name": "requests", "import_name": "requests", "type": "Python Package", "desc": "Checking updates & internet (essential)", "essential": True},
+        {"name": "yt-dlp", "import_name": "yt_dlp", "type": "Python Package", "desc": "Core downloader engine (essential)", "essential": True},
+        {"name": "ffmpeg", "import_name": None, "type": "System Binary", "desc": "Audio extraction, merging format streams, embedding subtitles (recommended)", "essential": False}
+    ]
+    
+    if is_termux:
+        requirements.append({
+            "name": "Android Storage",
+            "import_name": None,
+            "type": "System Permission",
+            "desc": "Permission to access /sdcard/Download (essential for saving media)",
+            "essential": True
+        })
+        
+    # Evaluate current requirements status
+    missing_essential = False
+    has_missing = False
+    
+    for req in requirements:
+        if req["type"] == "Python Package":
+            try:
+                __import__(req["import_name"])
+                req["status"] = "Installed"
+            except ImportError:
+                req["status"] = "Missing"
+                has_missing = True
+                if req["essential"]:
+                    missing_essential = True
+        elif req["name"] == "ffmpeg":
+            if shutil.which("ffmpeg") is not None:
+                req["status"] = "Installed"
+            else:
+                req["status"] = "Missing"
+                has_missing = True
+        elif req["name"] == "Android Storage":
+            test_dir = "/sdcard/Download"
+            if os.path.exists(test_dir) and os.access(test_dir, os.W_OK):
+                req["status"] = "Granted"
+            else:
+                req["status"] = "Missing"
+                has_missing = True
+                missing_essential = True
+                
+    if not has_missing:
+        return
+        
+    # Check if rich is available to render a beautiful layout
+    rich_available = False
+    try:
+        from rich.console import Console
+        from rich.table import Table
+        from rich.panel import Panel
+        from rich.align import Align
+        rich_available = True
+    except ImportError:
+        pass
+        
+    if rich_available:
+        temp_console = Console()
+        table = Table(title="FluxMedia Requirements Status", border_style="cyan")
+        table.add_column("Requirement", style="bold cyan")
+        table.add_column("Type", style="magenta")
+        table.add_column("Status", style="bold")
+        table.add_column("Description", style="white")
+        
+        for req in requirements:
+            status_color = "green" if req["status"] in ("Installed", "Granted") else ("red" if req["essential"] else "yellow")
+            table.add_row(
+                req["name"],
+                req["type"],
+                f"[{status_color}]{req['status']}[/{status_color}]",
+                req["desc"]
+            )
+        temp_console.print(Panel(
+            Align.center(table),
+            title="[bold yellow]⚠️  Missing Requirements Detected ⚠️[/bold yellow]",
+            border_style="yellow"
+        ))
+    else:
+        print("\n" + "=" * 80)
+        print("                  ⚠️  MISSING REQUIREMENTS DETECTED ⚠️")
+        print("=" * 80)
+        print(f"{'Requirement':<20} | {'Type':<18} | {'Status':<12} | {'Description'}")
+        print("-" * 80)
+        for req in requirements:
+            status_str = req["status"]
+            print(f"{req['name']:<20} | {req['type']:<18} | {status_str:<12} | {req['desc']}")
+        print("=" * 80 + "\n")
+        
+    # Prompt the user for installation/granting permission
+    if rich_available:
+        from rich.prompt import Confirm
+        install_choice = Confirm.ask("Would you like to try installing/setting up the missing requirements now?", default=True)
+    else:
+        user_input = input("Would you like to try installing/setting up the missing requirements now? (yes/no) [yes]: ").strip().lower()
+        install_choice = user_input in ("y", "yes", "")
+        
+    if not install_choice:
+        if missing_essential:
+            err_msg = "\n[bold red]Error: FluxMedia cannot run without essential requirements.[/bold red]\nPlease install all essential requirements to continue.\n" if rich_available else "\nError: FluxMedia cannot run without essential requirements.\nPlease install all essential requirements to continue.\n"
+            print(err_msg)
+            sys.exit(1)
+        else:
+            print("\nContinuing without recommended requirements...")
+            return
+            
+    # Process installation of missing items
+    for req in requirements:
+        if req["status"] == "Missing":
+            if req["type"] == "Python Package":
+                print(f"\n>>> Downloading & Installing Python package: [ {req['name']} ]...")
+                success = install_python_package(req["name"])
+                if not success and req["essential"]:
+                    print(f"Failed to install essential requirement: {req['name']}. Exiting.")
+                    sys.exit(1)
+            elif req["name"] == "ffmpeg":
+                print(f"\n>>> Setting up system dependency: [ ffmpeg ]...")
+                if is_termux:
+                    install_ffmpeg_termux()
+                else:
+                    inst_cmd = get_ffmpeg_install_instruction()
+                    print(f"To install FFmpeg on your system, please run the following command in a new terminal:")
+                    print(f"  {inst_cmd}")
+                    input("Press Enter to continue once you have installed FFmpeg...")
+            elif req["name"] == "Android Storage":
+                print(f"\n>>> Requesting System Permission: [ Android Storage Access ]...")
+                print("Running 'termux-setup-storage'. Please accept the storage prompt on your phone.")
+                try:
+                    subprocess.run(["termux-setup-storage"], check=True)
+                except Exception as e:
+                    print(f"Failed to run termux-setup-storage: {e}")
+                print("Checking storage access...")
+                import time
+                time.sleep(2.0)
+                test_dir = "/sdcard/Download"
+                if os.path.exists(test_dir) and os.access(test_dir, os.W_OK):
+                    print("Storage permission granted successfully!")
+                else:
+                    print("Warning: Storage permission not detected yet. If files fail to open or save, please run 'termux-setup-storage' manually.")
+                    
+    # Recursively check requirements again to ensure they are fully set up
+    verify_and_install_requirements()
 
 import threading
-import requests
-import yt_dlp
 
 # --- Retrieve Current Version ---
 try:
     from importlib.metadata import version
     CURRENT_VERSION = version("fluxmedia")
 except Exception:
-    CURRENT_VERSION = "1.3.3"
+    CURRENT_VERSION = "1.3.4"
 
 LATEST_VERSION = None
 
@@ -93,22 +289,33 @@ def start_version_check():
     thread.start()
 
 def check_fluxmedia_update_sync():
-    """Checks PyPI synchronously for the latest FluxMedia version on start."""
+    """Checks PyPI synchronously for the latest FluxMedia version on start and prompts for update."""
     global LATEST_VERSION
     console.print("[cyan]Checking for updates...[/cyan]")
     try:
         url = "https://pypi.org/pypi/fluxmedia/json"
-        response = requests.get(url, timeout=1.5)
+        response = requests.get(url, timeout=2.0)
         if response.status_code == 200:
             data = response.json()
             LATEST_VERSION = data.get("info", {}).get("version")
             if is_new_version_available(CURRENT_VERSION, LATEST_VERSION):
                 console.print(f"\n[bold yellow]🔔 UPDATE AVAILABLE 🔔[/bold yellow]")
                 console.print(f"A new version of FluxMedia is available: [bold green]{LATEST_VERSION}[/bold green] (Current: {CURRENT_VERSION})")
-                console.print("Run [bold cyan]pip install -U fluxmedia[/bold cyan] to update.\n")
-                Prompt.ask("Press Enter to continue...")
-    except Exception:
-        pass
+                
+                console.print("\n[bold]Options:[/bold]")
+                console.print("1. Update Now")
+                console.print("2. Continue with Current Version")
+                choice = Prompt.ask("Choose an option", choices=["1", "2"], default="2")
+                
+                if choice == "1":
+                    operation_update_fluxmedia()
+                    sys.exit(0)
+                else:
+                    console.print("[yellow]Continuing with current version...[/yellow]")
+                    import time
+                    time.sleep(1.0)
+    except Exception as e:
+        logger.warning(f"Failed sync update check: {e}")
 
 
 def detect_os() -> str:
@@ -195,12 +402,29 @@ logging.basicConfig(
 )
 logger = logging.getLogger("FluxMedia")
 
-console = Console()
+console = None
 
 # --- Config & History Defaults ---
 def get_default_download_dir() -> str:
-    """Get a sensible default downloads directory."""
+    """Get a sensible default downloads directory, supporting Termux/Android specific paths."""
     home = os.path.expanduser("~")
+    
+    # Check if we are in Termux (Android)
+    if "ANDROID_ROOT" in os.environ or "TERMUX_VERSION" in os.environ:
+        candidate_paths = [
+            os.path.join(home, "storage", "shared", "Download", "FluxMediaDownloads"),
+            os.path.join(home, "storage", "shared", "Downloads", "FluxMediaDownloads"),
+            "/sdcard/Download/FluxMediaDownloads",
+            "/sdcard/Downloads/FluxMediaDownloads",
+            "/storage/emulated/0/Download/FluxMediaDownloads",
+            "/storage/emulated/0/Downloads/FluxMediaDownloads"
+        ]
+        for path in candidate_paths:
+            parent = os.path.dirname(path)
+            if os.path.exists(parent):
+                return os.path.abspath(path)
+        return "/sdcard/Download/FluxMediaDownloads"
+        
     downloads = os.path.join(home, "Downloads", "FluxMedia")
     # Fallback if Downloads folder doesn't exist
     if not os.path.exists(os.path.join(home, "Downloads")):
@@ -499,7 +723,7 @@ def apply_common_ydl_opts(ydl_opts: Dict[str, Any], config: Dict[str, Any]) -> D
     return ydl_opts
 
 def print_header():
-    """Renders the main system title card."""
+    """Renders a modern, professional, and visually stunning dashboard header."""
     if sys.platform.startswith('win'):
         os.system('cls')
     else:
@@ -507,31 +731,55 @@ def print_header():
     
     detected_os = detect_os()
     
-    header_text = Text()
-    header_text.append("🌊 FluxMedia 🌊\n", style="bold cyan")
-    header_text.append(f"OS: {detected_os}\n", style="bold magenta")
-    header_text.append("A Cross-Platform CLI Media Downloader", style="italic gray")
+    # logo header
+    logo = Text()
+    logo.append("  ___ _       _   _ __  __          _ _      \n", style="bold cyan")
+    logo.append(" | __| |_  ___| | | |  \\/  |___  __| (_)__ _ \n", style="bold deep_sky_blue1")
+    logo.append(" | _|| | || \\ \\ / / | |\\/| / -_)/ _` | / _` |\n", style="bold dodger_blue1")
+    logo.append(" |_| |_|\\_,_/ \\_/  |_|  |_\\___|\\__,_|_\\__,_|", style="bold blue")
+    
+    header_grid = Table.grid(expand=True)
+    header_grid.add_column(justify="left", ratio=1)
+    header_grid.add_column(justify="right", ratio=1)
+    
+    left_text = Text()
+    left_text.append("🌊 FluxMedia Downloader\n", style="bold cyan")
+    left_text.append("💻 OS: ", style="dim")
+    left_text.append(detected_os, style="bold magenta")
+    
+    right_text = Text()
+    right_text.append(f"v{CURRENT_VERSION}\n", style="bold white")
     
     ffmpeg_available = shutil.which("ffmpeg") is not None
     if ffmpeg_available:
-        ffmpeg_status = "[bold green]FFmpeg Installed[/bold green]"
+        right_text.append("FFmpeg: ", style="dim")
+        right_text.append("Active\n", style="bold green")
     else:
         inst_cmd = get_ffmpeg_install_instruction()
-        ffmpeg_status = f"[bold yellow]FFmpeg Missing (Run '{inst_cmd}' to install)[/bold yellow]"
-    
-    subtitle_right = ffmpeg_status
+        right_text.append("FFmpeg: ", style="dim")
+        right_text.append("Inactive", style="bold yellow")
+        right_text.append(f" (Run '{inst_cmd}')\n", style="dim")
+        
     if is_new_version_available(CURRENT_VERSION, LATEST_VERSION):
-        subtitle_right = f"{ffmpeg_status} | [bold yellow]New version available: {LATEST_VERSION}! Run 'pip install -U fluxmedia' to update.[/bold yellow]"
-
-    panel = Panel(
-        Align.center(header_text),
+        right_text.append("Update: ", style="dim")
+        right_text.append("Available!", style="bold yellow")
+    else:
+        right_text.append("Update: ", style="dim")
+        right_text.append("Up to date", style="bold green")
+        
+    header_grid.add_row(left_text, right_text)
+    
+    container_grid = Table.grid(expand=True, padding=(1, 0))
+    container_grid.add_row(Align.center(logo))
+    container_grid.add_row(Panel(header_grid, border_style="blue", padding=(0, 2)))
+    
+    console.print(Panel(
+        container_grid,
+        box=box.DOUBLE,
         border_style="cyan",
-        title=f"[bold white]v{CURRENT_VERSION}[/bold white]",
-        title_align="right",
-        subtitle=subtitle_right,
-        subtitle_align="left"
-    )
-    console.print(panel)
+        title="[bold white] CONTROL PANEL [/bold white]",
+        title_align="center"
+    ))
 
 
 def operation_download_video(config: Dict[str, Any]):
@@ -651,7 +899,7 @@ def operation_download_video(config: Dict[str, Any]):
     except KeyboardInterrupt:
         console.print("\n[bold yellow]Batch download suspended by user.[/bold yellow]")
         send_desktop_notification("FluxMedia - Batch Interrupted", "Batch download was suspended.")
-    Prompt.ask("\nAll video downloads complete. Press Enter to return to menu...")
+    handle_post_download_options(config, dest_dir)
 
 def operation_download_audio(config: Dict[str, Any]):
     """Prompts for and extracts high-quality audio stream (supports multiple space-separated URLs)."""
@@ -756,7 +1004,7 @@ def operation_download_audio(config: Dict[str, Any]):
     except KeyboardInterrupt:
         console.print("\n[bold yellow]Batch download suspended by user.[/bold yellow]")
         send_desktop_notification("FluxMedia - Batch Interrupted", "Batch download was suspended.")
-    Prompt.ask("\nAll audio downloads complete. Press Enter to return to menu...")
+    handle_post_download_options(config, dest_dir)
 
 def operation_download_playlist(config: Dict[str, Any]):
     """Downloads an entire playlist nested in a playlist subfolder."""
@@ -844,7 +1092,7 @@ def operation_download_playlist(config: Dict[str, Any]):
         logger.error(f"Playlist download failed or was interrupted: {playlist_title} ({url})")
         
     send_desktop_notification("FluxMedia - Playlist Complete", f"Finished downloading playlist: {playlist_title}.")
-    Prompt.ask("\nPress Enter to return to menu...")
+    handle_post_download_options(config, dest_dir)
 
 def operation_download_channel(config: Dict[str, Any]):
     """Downloads recent videos from a channel or user URL."""
@@ -941,7 +1189,7 @@ def operation_download_channel(config: Dict[str, Any]):
         logger.error(f"Channel download failed: {channel_name} ({url})")
         
     send_desktop_notification("FluxMedia - Channel Complete", f"Finished downloading channel: {channel_name}.")
-    Prompt.ask("\nPress Enter to return to menu...")
+    handle_post_download_options(config, dest_dir)
 
 def operation_download_subtitles(config: Dict[str, Any]):
     """Downloads subtitles only for a selected video and language."""
@@ -1002,7 +1250,7 @@ def operation_download_subtitles(config: Dict[str, Any]):
         logger.error(f"Failed subtitle download ({lang}) for {title} ({url})")
         
     send_desktop_notification("FluxMedia - Subtitles Complete", f"Subtitles download completed for: {title}.")
-    Prompt.ask("\nPress Enter to return to menu...")
+    handle_post_download_options(config, dest_dir)
 
 def operation_view_history():
     """Renders formatted table of the logs list."""
@@ -1325,44 +1573,129 @@ def operation_update_ytdlp():
         
     Prompt.ask("\nPress Enter to return to menu...")
 
-def operation_open_downloads_folder(config: Dict[str, Any]):
-    """Opens the configured downloads directory in the system file explorer."""
-    print_header()
-    console.print("\n[bold cyan]=== OPEN DOWNLOADS FOLDER ===[/bold cyan]\n")
-    dest_dir = config.get("download_dir", get_default_download_dir())
+def open_folder_android(dest_dir: str) -> bool:
+    """Offers file manager options on Android, defaulting to Google Files or custom intent."""
+    console.print("\n[bold]Choose File Manager to open folder:[/bold]")
+    console.print("1. Google Files / System Files (Default)")
+    console.print("2. Any available File Manager App (Generic Intent)")
+    console.print("3. Print folder path (Cancel)")
+    choice = Prompt.ask("Choose an option", choices=["1", "2", "3"], default="1")
+    
+    if choice == "3":
+        console.print(f"\n[bold green]Downloads Folder Path:[/bold green]\n{dest_dir}")
+        return True
+
+    abs_path = os.path.abspath(dest_dir)
+    
+    # Extract relative path on external shared storage
+    rel_path = None
+    for prefix in ["/storage/emulated/0/", "/sdcard/", os.path.expanduser("~/storage/shared/")]:
+        if abs_path.startswith(prefix):
+            rel_path = abs_path[len(prefix):].replace("\\", "/")
+            break
+            
+    if not rel_path:
+        if "/storage/emulated/0/" in abs_path:
+            rel_path = abs_path.split("/storage/emulated/0/")[-1].replace("\\", "/")
+        elif "/sdcard/" in abs_path:
+            rel_path = abs_path.split("/sdcard/")[-1].replace("\\", "/")
+
+    if choice == "1":
+        # Android DocumentsUI content URI format
+        uri = "content://com.android.externalstorage.documents/document/primary:"
+        if rel_path:
+            from urllib.parse import quote
+            uri += quote(rel_path)
+        else:
+            uri += "Download"
+            
+        cmd = ["am", "start", "-a", "android.intent.action.VIEW", "-d", uri]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0:
+            console.print("[bold green]Google Files opened successfully![/bold green]")
+            return True
+        else:
+            console.print("[yellow]Could not launch default Files app. Retrying with generic intent chooser...[/yellow]")
+            choice = "2"
+
+    if choice == "2":
+        if shutil.which("termux-open"):
+            cmd = ["termux-open", abs_path]
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            if result.returncode == 0:
+                console.print("[bold green]File Manager launched successfully![/bold green]")
+                return True
+                
+        # Fallback to general VIEW intent
+        cmd = ["am", "start", "-a", "android.intent.action.VIEW", "-d", f"file://{abs_path}", "-t", "*/*"]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0:
+            console.print("[bold green]File Manager launched successfully![/bold green]")
+            return True
+            
+        console.print(f"[bold red]Failed to launch any file manager. Please open manually. Path: {abs_path}[/bold red]")
+        return False
+
+def open_folder(config: Dict[str, Any], dest_dir: str) -> bool:
+    """Opens the downloads directory in the corresponding platform file explorer."""
     if not os.path.exists(dest_dir):
         try:
             os.makedirs(dest_dir, exist_ok=True)
             console.print(f"[green]Created downloads directory: {dest_dir}[/green]")
         except Exception as e:
             console.print(f"[bold red]Error: Could not create downloads directory: {e}[/bold red]")
-            Prompt.ask("\nPress Enter to return to menu...")
-            return
+            return False
             
     console.print(f"Opening folder: [bold white]{dest_dir}[/bold white] ...")
     try:
         if "ANDROID_ROOT" in os.environ or "TERMUX_VERSION" in os.environ:
-            if shutil.which("termux-open"):
-                subprocess.run(["termux-open", dest_dir], check=True)
-            else:
-                raise FileNotFoundError("termux-open command not found. Please install termux-tools in Termux.")
+            return open_folder_android(dest_dir)
         elif sys.platform.startswith('win'):
             os.startfile(dest_dir)
+            console.print("[bold green]Folder opened successfully![/bold green]")
+            return True
         elif sys.platform.startswith('darwin'):
             subprocess.run(["open", dest_dir], check=True)
+            console.print("[bold green]Folder opened successfully![/bold green]")
+            return True
         else:
             subprocess.run(["xdg-open", dest_dir], check=True)
-        console.print("[bold green]Folder opened successfully![/bold green]")
+            console.print("[bold green]Folder opened successfully![/bold green]")
+            return True
     except Exception as e:
         console.print(f"[bold red]Failed to open directory: {e}[/bold red]")
         logger.error(f"Failed to open download directory {dest_dir}: {e}")
+        return False
+
+def handle_post_download_options(config: Dict[str, Any], dest_dir: str):
+    """Provides options to open downloads folder or return to the main menu."""
+    while True:
+        console.print("\n[bold green]🎉 Downloading completed successfully![/bold green]")
+        console.print("[bold]Post-Download Actions:[/bold]")
+        console.print("1. Open Downloads Folder")
+        console.print("2. Continue to Main Menu")
+        choice = Prompt.ask("Choose an option", choices=["1", "2"], default="2")
         
+        if choice == "1":
+            open_folder(config, dest_dir)
+            Prompt.ask("\nPress Enter to return to post-download menu...")
+            print_header()
+        else:
+            break
+
+def operation_open_downloads_folder(config: Dict[str, Any]):
+    """Opens the configured downloads directory in the system file explorer."""
+    print_header()
+    console.print("\n[bold cyan]=== OPEN DOWNLOADS FOLDER ===[/bold cyan]\n")
+    dest_dir = config.get("download_dir", get_default_download_dir())
+    open_folder(config, dest_dir)
     Prompt.ask("\nPress Enter to return to menu...")
 
 def operation_search_and_download_video(config: Dict[str, Any]):
     """Searches for videos on YouTube and allows the user to download one of them."""
     print_header()
     console.print("\n[bold cyan]=== SEARCH & DOWNLOAD VIDEO ===[/bold cyan]\n")
+    dest_dir = None
     
     query = Prompt.ask("Enter search query").strip()
     if not query:
@@ -1594,8 +1927,10 @@ def operation_search_and_download_video(config: Dict[str, Any]):
         logger.error(f"Search download failed: {e}", exc_info=True)
         console.print(f"\n[bold red]Search Error: {e}[/bold red]")
         
-    send_desktop_notification("FluxMedia - Search Download", "Finished searching and downloading video.")
-    Prompt.ask("\nPress Enter to return to menu...")
+    if dest_dir:
+        handle_post_download_options(config, dest_dir)
+    else:
+        Prompt.ask("\nPress Enter to return to menu...")
 
 def operation_about_creator():
     """Renders details about the creator (Priyanshu Chauhan)."""
@@ -1754,9 +2089,11 @@ def process_download_queue(config: Dict[str, Any]):
     ffmpeg_available = shutil.which("ffmpeg") is not None
     successful_count = 0
     failed_count = 0
+    last_dest_dir = config.get("download_dir", get_default_download_dir())
     
     try:
         for idx, item in enumerate(pending_items, 1):
+            last_dest_dir = item.get("dest_dir", last_dest_dir)
             # Refresh queue list from disk
             queue = load_queue()
             actual_item = next((x for x in queue if x["id"] == item["id"]), None)
@@ -1864,7 +2201,7 @@ def process_download_queue(config: Dict[str, Any]):
             save_queue(queue)
         console.print("\n[bold yellow]Queue processing suspended by user.[/bold yellow]")
         send_desktop_notification("FluxMedia - Queue Interrupted", "Queue download was suspended.")
-    Prompt.ask("\nPress Enter to continue...")
+    handle_post_download_options(config, last_dest_dir)
 
 def remove_from_queue_interactive():
     """Prompts for a task ID and removes it from the queue."""
@@ -2148,6 +2485,9 @@ def operation_updates_manager(config: Dict[str, Any]):
 
 def main():
     """Primary routing flow block."""
+    verify_and_install_requirements()
+    init_dependencies()
+    
     check_fluxmedia_update_sync()
     start_version_check()
     config = load_config()
@@ -2180,20 +2520,49 @@ def main():
     while True:
         print_header()
         
-        menu_table = Table(show_header=False, box=None, padding=(0, 2))
-        menu_table.add_row("[bold cyan]1.[/bold cyan] Download Video", "[bold cyan]2.[/bold cyan] Search & Download Video")
-        menu_table.add_row("[bold cyan]3.[/bold cyan] Download Audio", "[bold cyan]4.[/bold cyan] Download Playlist")
-        menu_table.add_row("[bold cyan]5.[/bold cyan] Download Channel Videos", "[bold cyan]6.[/bold cyan] Download Subtitles")
-        menu_table.add_row("[bold cyan]7.[/bold cyan] View Download History", "[bold cyan]8.[/bold cyan] Download Queue")
-        menu_table.add_row("[bold cyan]9.[/bold cyan] Settings", "[bold cyan]10.[/bold cyan] Update & Maintenance")
-        menu_table.add_row("[bold cyan]11.[/bold cyan] Open Downloads Folder", "[bold cyan]12.[/bold cyan] About Creator")
-        menu_table.add_row("[bold cyan]13.[/bold cyan] Report Bug / Feedback", "[bold red]14.[/bold red] Exit")
+        # Categorized sub-menus
+        dl_table = Table(show_header=False, box=None, padding=(0, 1))
+        dl_table.add_row("[bold cyan]1.[/bold cyan] Download Video [dim](URL)[/dim]")
+        dl_table.add_row("[bold cyan]2.[/bold cyan] Search & Download [dim](YT)[/dim]")
+        dl_table.add_row("[bold cyan]3.[/bold cyan] Download Audio [dim](MP3)[/dim]")
+        dl_table.add_row("[bold cyan]4.[/bold cyan] Download Playlist [dim](Batch)[/dim]")
+        dl_table.add_row("[bold cyan]5.[/bold cyan] Download Channel [dim](Batch)[/dim]")
+        dl_table.add_row("[bold cyan]6.[/bold cyan] Download Subtitles [dim](Subs)[/dim]")
+        
+        mgmt_table = Table(show_header=False, box=None, padding=(0, 1))
+        mgmt_table.add_row("[bold green]7.[/bold green] View History Logs")
+        mgmt_table.add_row("[bold green]8.[/bold green] Download Queue [dim](Batch)[/dim]")
+        mgmt_table.add_row("[bold green]9.[/bold green] Configuration [dim](Settings)[/dim]")
+        mgmt_table.add_row("[bold green]10.[/bold green] Updates Manager")
+        mgmt_table.add_row("[bold green]11.[/bold green] Open Save Folder")
+        
+        info_table = Table(show_header=False, box=None, padding=(0, 1))
+        info_table.add_row("[bold magenta]12.[/bold magenta] About Creator [dim](Credit)[/dim]")
+        info_table.add_row("[bold magenta]13.[/bold magenta] Send Feedback [dim](Bugs)[/dim]")
+        info_table.add_row("[bold red]14.[/bold red] Exit Application [dim](Quit)[/dim]")
+        
+        menu_grid = Table.grid(expand=True)
+        if console.width >= 100:
+            menu_grid.add_column(ratio=1)
+            menu_grid.add_column(ratio=1)
+            menu_grid.add_column(ratio=1)
+            menu_grid.add_row(
+                Panel(dl_table, title="[bold cyan]📥 Downloader Engine[/bold cyan]", border_style="cyan", padding=(1, 2)),
+                Panel(mgmt_table, title="[bold green]⚙️ Workspace & Settings[/bold green]", border_style="green", padding=(1, 2)),
+                Panel(info_table, title="[bold magenta]ℹ️ System Info[/bold magenta]", border_style="magenta", padding=(1, 2))
+            )
+        else:
+            menu_grid.add_column(ratio=1)
+            menu_grid.add_row(Panel(dl_table, title="[bold cyan]📥 Downloader Engine[/bold cyan]", border_style="cyan", padding=(0, 2)))
+            menu_grid.add_row(Panel(mgmt_table, title="[bold green]⚙️ Workspace & Settings[/bold green]", border_style="green", padding=(0, 2)))
+            menu_grid.add_row(Panel(info_table, title="[bold magenta]ℹ️ System Info[/bold magenta]", border_style="magenta", padding=(0, 2)))
         
         console.print(Panel(
-            menu_table,
-            title="[bold white]Main Menu[/bold white]",
-            border_style="cyan",
-            padding=(1, 4)
+            menu_grid,
+            box=box.DOUBLE,
+            title="[bold white] CONTROL PANEL MAIN MENU [/bold white]",
+            border_style="bold blue",
+            padding=(1, 2)
         ))
         
         choice = Prompt.ask("Choose an option", choices=[str(i) for i in range(1, 15)], default="14")
