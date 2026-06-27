@@ -244,9 +244,64 @@ try:
     from importlib.metadata import version
     CURRENT_VERSION = version("fluxmedia")
 except Exception:
-    CURRENT_VERSION = "1.4.2"
+    CURRENT_VERSION = "1.4.3"
 
 LATEST_VERSION = None
+
+CURRENT_THEME_COLORS = {
+    "primary": "cyan",
+    "secondary": "deep_sky_blue1",
+    "accent": "dodger_blue1",
+    "success": "green",
+    "warning": "yellow",
+    "error": "red",
+    "border": "blue"
+}
+
+def apply_theme_colors(theme_name: str):
+    """Sets the global theme colors based on the theme name."""
+    global CURRENT_THEME_COLORS
+    t = theme_name.lower().strip()
+    if t == "ocean":
+        CURRENT_THEME_COLORS = {
+            "primary": "cyan",
+            "secondary": "deep_sky_blue1",
+            "accent": "dodger_blue1",
+            "success": "green",
+            "warning": "yellow",
+            "error": "red",
+            "border": "blue"
+        }
+    elif t == "sunset":
+        CURRENT_THEME_COLORS = {
+            "primary": "orange1",
+            "secondary": "red1",
+            "accent": "magenta1",
+            "success": "spring_green1",
+            "warning": "yellow",
+            "error": "red",
+            "border": "dark_orange"
+        }
+    elif t == "forest":
+        CURRENT_THEME_COLORS = {
+            "primary": "green1",
+            "secondary": "spring_green2",
+            "accent": "yellow1",
+            "success": "green",
+            "warning": "gold1",
+            "error": "red",
+            "border": "dark_green"
+        }
+    else:
+        CURRENT_THEME_COLORS = {
+            "primary": "cyan",
+            "secondary": "deep_sky_blue1",
+            "accent": "dodger_blue1",
+            "success": "green",
+            "warning": "yellow",
+            "error": "red",
+            "border": "blue"
+        }
 
 def is_new_version_available(current: str, latest: str) -> bool:
     """Helper to check if a new version is actually available using semver comparison."""
@@ -766,15 +821,23 @@ def print_header():
     
     detected_os = detect_os()
     
+    primary = CURRENT_THEME_COLORS["primary"]
+    secondary = CURRENT_THEME_COLORS["secondary"]
+    accent = CURRENT_THEME_COLORS["accent"]
+    success = CURRENT_THEME_COLORS["success"]
+    warning = CURRENT_THEME_COLORS["warning"]
+    error = CURRENT_THEME_COLORS["error"]
+    border = CURRENT_THEME_COLORS["border"]
+    
     # logo header and metadata layout are responsive based on console width
     if console.width >= 85:
         logo = Text()
-        logo.append(" ██████╗██╗     ██╗   ██╗██╗  ██╗███╗   ███╗███████╗██████╗ ██╗ █████╗ \n", style="bold cyan")
-        logo.append(" ██╔════╝██║     ██║   ██║╚██╗██╔╝████╗ ████║██╔════╝██╔══██╗██║██╔══██╗\n", style="bold deep_sky_blue1")
-        logo.append(" █████╗  ██║     ██║   ██║ ╚███╔╝ ██╔████╔██║█████╗  ██║  ██║██║███████║\n", style="bold deep_sky_blue2")
-        logo.append(" ██╔══╝  ██║     ██║   ██║ ██╔██╗ ██║╚██╔╝██║██╔══╝  ██║  ██║██║██╔══██║\n", style="bold dodger_blue1")
-        logo.append(" ██║     ███████╗╚██████╔╝██╔╝ ██╗██║ ╚═╝ ██║███████╗██████╔╝██║██║  ██║\n", style="bold blue")
-        logo.append(" ╚═╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚═════╝ ╚═╝╚═╝  ╚═╝", style="bold blue")
+        logo.append(" ██████╗██╗     ██╗   ██╗██╗  ██╗███╗   ███╗███████╗██████╗ ██╗ █████╗ \n", style=f"bold {primary}")
+        logo.append(" ██╔════╝██║     ██║   ██║╚██╗██╔╝████╗ ████║██╔════╝██╔══██╗██║██╔══██╗\n", style=f"bold {secondary}")
+        logo.append(" █████╗  ██║     ██║   ██║ ╚███╔╝ ██╔████╔██║█████╗  ██║  ██║██║███████║\n", style=f"bold {secondary}")
+        logo.append(" ██╔══╝  ██║     ██║   ██║ ██╔██╗ ██║╚██╔╝██║██╔══╝  ██║  ██║██║██╔══██║\n", style=f"bold {accent}")
+        logo.append(" ██║     ███████╗╚██████╔╝██╔╝ ██╗██║ ╚═╝ ██║███████╗██████╔╝██║██║  ██║\n", style=f"bold {border}")
+        logo.append(" ╚═╝     ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚═════╝ ╚═╝╚═╝  ╚═╝", style=f"bold {border}")
         logo_element = Align.center(logo)
         
         header_grid = Table.grid(expand=True)
@@ -782,7 +845,7 @@ def print_header():
         header_grid.add_column(justify="right", ratio=1)
         
         left_text = Text()
-        left_text.append("🌊 FluxMedia Downloader\n", style="bold cyan")
+        left_text.append("🌊 FluxMedia Downloader\n", style=f"bold {primary}")
         left_text.append("💻 OS: ", style="dim")
         left_text.append(detected_os, style="bold magenta")
         
@@ -792,19 +855,19 @@ def print_header():
         ffmpeg_available = shutil.which("ffmpeg") is not None
         if ffmpeg_available:
             right_text.append("FFmpeg: ", style="dim")
-            right_text.append("Active\n", style="bold green")
+            right_text.append("Active\n", style=f"bold {success}")
         else:
             inst_cmd = get_ffmpeg_install_instruction()
             right_text.append("FFmpeg: ", style="dim")
-            right_text.append("Inactive", style="bold yellow")
+            right_text.append("Inactive", style=f"bold {warning}")
             right_text.append(f" (Run '{inst_cmd}')\n", style="dim")
             
         if is_new_version_available(CURRENT_VERSION, LATEST_VERSION):
             right_text.append("Update: ", style="dim")
-            right_text.append("Available!", style="bold yellow")
+            right_text.append("Available!", style=f"bold {warning}")
         else:
             right_text.append("Update: ", style="dim")
-            right_text.append("Up to date", style="bold green")
+            right_text.append("Up to date", style=f"bold {success}")
             
         header_grid.add_row(left_text, right_text)
     else:
@@ -813,7 +876,7 @@ def print_header():
         header_grid.add_column(justify="center", ratio=1)
         
         mid_text = Text()
-        mid_text.append("🌊 FluxMedia Downloader ", style="bold cyan")
+        mid_text.append("🌊 FluxMedia Downloader ", style=f"bold {primary}")
         mid_text.append(f"v{CURRENT_VERSION}\n", style="bold white")
         mid_text.append("💻 OS: ", style="dim")
         mid_text.append(f"{detected_os}\n", style="bold magenta")
@@ -821,9 +884,9 @@ def print_header():
         ffmpeg_available = shutil.which("ffmpeg") is not None
         mid_text.append("⚙️ FFmpeg: ", style="dim")
         if ffmpeg_available:
-            mid_text.append("Active", style="bold green")
+            mid_text.append("Active", style=f"bold {success}")
         else:
-            mid_text.append("Inactive", style="bold yellow")
+            mid_text.append("Inactive", style=f"bold {warning}")
             
         mid_text.append("  |  ", style="bold gray30")
         
@@ -1901,10 +1964,18 @@ def operation_settings(config: Dict[str, Any]) -> Dict[str, Any]:
             Prompt.ask("\nPress Enter to continue...")
             
         elif choice == "4":
-            new_theme = Prompt.ask("Enter theme name", default=config["theme"])
-            config["theme"] = new_theme
+            console.print("\n[bold]Select Theme Style:[/bold]")
+            console.print("1. Dark (Classic)")
+            console.print("2. Ocean (Blue/Cyan)")
+            console.print("3. Sunset (Orange/Red)")
+            console.print("4. Forest (Green/Spring)")
+            theme_choice = Prompt.ask("Choose theme", choices=["1", "2", "3", "4"], default="1")
+            theme_map = {"1": "dark", "2": "ocean", "3": "sunset", "4": "forest"}
+            selected_theme = theme_map[theme_choice]
+            config["theme"] = selected_theme
+            apply_theme_colors(selected_theme)
             save_config(config)
-            console.print(f"[green]✓ Theme updated to: {new_theme}[/green]")
+            console.print(f"[green]✓ Theme updated to: {selected_theme}[/green]")
             Prompt.ask("\nPress Enter to continue...")
             
         elif choice == "5":
@@ -3021,6 +3092,7 @@ def main():
     check_fluxmedia_update_sync()
     start_version_check()
     config = load_config()
+    apply_theme_colors(config.get("theme", "dark"))
     
     if config.get("show_educational_notice", True):
         print_header()
