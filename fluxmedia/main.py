@@ -244,7 +244,7 @@ try:
     from importlib.metadata import version
     CURRENT_VERSION = version("fluxmedia")
 except Exception:
-    CURRENT_VERSION = "1.3.7"
+    CURRENT_VERSION = "1.3.8"
 
 LATEST_VERSION = None
 
@@ -1373,8 +1373,20 @@ def operation_trim_and_download_video(config: Dict[str, Any]):
         Prompt.ask("\nPress Enter to return...")
         return
         
-    ydl_opts = get_default_ydl_opts(config, dest_dir)
-    ydl_opts['format'] = get_format_string(quality, ffmpeg_available)
+    ydl_opts = {
+        'format': get_format_string(quality, ffmpeg_available),
+        'outtmpl': os.path.join(dest_dir, config["filename_format"]),
+        'quiet': True,
+        'no_warnings': True,
+        'noprogress': True,
+    }
+    
+    pref_format = config.get("video_format", "default")
+    if pref_format != "default":
+        ydl_opts['merge_output_format'] = pref_format
+        
+    ydl_opts = apply_common_ydl_opts(ydl_opts, config)
+    
     ydl_opts['download_ranges'] = [{
         'start_time': start_sec,
         'end_time': end_sec,
