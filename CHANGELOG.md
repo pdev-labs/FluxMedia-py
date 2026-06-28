@@ -4,6 +4,13 @@ All notable changes to the **FluxMedia** project are documented in this file.
 
 ---
 
+## [v1.4.6] - 2026-06-28
+### Added
+- **TUI Option Screen Clearing**: Configured terminal screen clearing immediately upon option select across all menu and configuration prompts, providing cleaner layout transitions.
+- **PEP 668 Troubleshooting Support**: Integrated dedicated troubleshooting guidance for `externally-managed-environment` errors when installing packages globally, outlining solutions for `pipx` and custom virtual environments.
+
+---
+
 ## [v1.4.5] - 2026-06-27
 ### Added
 - **Duplicate Task Prevention**: Added validation checks inside the batch download queue manager `add_to_queue_interactive()` to warn users and block queuing duplicates of the same URL and file format when already active in the downloads queue.
