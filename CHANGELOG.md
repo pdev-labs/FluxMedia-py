@@ -4,6 +4,12 @@ All notable changes to the **FluxMedia** project are documented in this file.
 
 ---
 
+## [v1.5.0] - 2026-06-28
+### Added
+- **Dynamic 5-Second Blinking Keyboard Interrupt Warning**: Reimplemented the 5-second blinking KeyboardInterrupt warning to dynamically adjust message length to prevent line wraps in smaller terminals. Force-flushes stdout for synchronous real-time blinking animation.
+
+---
+
 ## [v1.4.9] - 2026-06-28
 ### Added
 - **5-Second Blinking Keyboard Interrupt Warning**: Integrated a 5-second blinking warning prompt when KeyboardInterrupt (Ctrl+C) is detected, highlighting instructions for confirming exit.
