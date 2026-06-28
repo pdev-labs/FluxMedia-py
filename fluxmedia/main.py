@@ -254,7 +254,7 @@ try:
     from importlib.metadata import version
     CURRENT_VERSION = version("fluxmedia")
 except Exception:
-    CURRENT_VERSION = "1.4.5"
+    CURRENT_VERSION = "1.4.6"
 
 LATEST_VERSION = None
 
