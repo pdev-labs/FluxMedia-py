@@ -4,6 +4,12 @@ All notable changes to the **FluxMedia** project are documented in this file.
 
 ---
 
+## [v1.5.1] - 2026-06-28
+### Fixed
+- **Blinking Warning Rich Compatibility**: Fixed a TypeError crash when calling Rich `Console.print` with an unsupported `flush` keyword parameter, using explicit manual stdout flushing instead.
+
+---
+
 ## [v1.5.0] - 2026-06-28
 ### Added
 - **Dynamic 5-Second Blinking Keyboard Interrupt Warning**: Reimplemented the 5-second blinking KeyboardInterrupt warning to dynamically adjust message length to prevent line wraps in smaller terminals. Force-flushes stdout for synchronous real-time blinking animation.

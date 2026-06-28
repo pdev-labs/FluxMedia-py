@@ -111,24 +111,23 @@ def blink_warning():
         for i in range(10):  # 10 half-second periods = 5 seconds
             if i % 2 == 0:
                 if console:
-                    console.print(f"\r[bold yellow]{message}[/bold yellow]", end="", flush=True)
+                    console.print(f"\r[bold yellow]{message}[/bold yellow]", end="")
                 else:
                     sys.stdout.write(f"\r{message}")
-                    sys.stdout.flush()
             else:
                 if console:
-                    console.print(f"\r{blank}", end="", flush=True)
+                    console.print(f"\r{blank}", end="")
                 else:
                     sys.stdout.write(f"\r{blank}")
-                    sys.stdout.flush()
+            sys.stdout.flush()
             time.sleep(0.5)
             
         # Clean up the line at the end
         if console:
-            console.print(f"\r{blank}\r", end="", flush=True)
+            console.print(f"\r{blank}\r", end="")
         else:
             sys.stdout.write(f"\r{blank}\r")
-            sys.stdout.flush()
+        sys.stdout.flush()
     finally:
         try:
             # Show cursor
@@ -312,7 +311,7 @@ try:
     from importlib.metadata import version
     CURRENT_VERSION = version("fluxmedia")
 except Exception:
-    CURRENT_VERSION = "1.5.0"
+    CURRENT_VERSION = "1.5.1"
 
 LATEST_VERSION = None
 LAST_INTERRUPT_TIME = 0.0
