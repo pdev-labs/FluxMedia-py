@@ -14,6 +14,10 @@ Install FluxMedia globally on any system running Python 3.10+ directly via `pip`
 ```bash
 pip install fluxmedia
 ```
+If you run into an `externally-managed-environment` error on modern Linux systems, install using `pipx` instead:
+```bash
+pipx install fluxmedia
+```
 
 ### 2. Execution
 Run the interface from any terminal or command prompt:
@@ -97,6 +101,23 @@ If you get parsing errors on newer video layouts:
 * Simply run the Updates Manager inside the app (Option 11) or upgrade the core downloader from your command prompt:
   ```bash
   pip install -U yt-dlp
+  ```
+
+### 9. Externally Managed Environment Error (`externally-managed-environment`)
+If installing FluxMedia system-wide fails with `error: externally-managed-environment` on modern Linux distributions (such as Ubuntu 23.04+, Debian 12+, etc.):
+* **Use pipx (Recommended)**: `pipx` automatically manages isolated environments for Python CLI tools:
+  ```bash
+  pipx install fluxmedia
+  ```
+* **Use a Virtual Environment**: Create and activate a virtual environment before running pip:
+  ```bash
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip install fluxmedia
+  ```
+* **Override System Safeguards (Not Recommended)**: Override the safeguard at the risk of breaking system packages:
+  ```bash
+  pip install fluxmedia --break-system-packages
   ```
 
 ---

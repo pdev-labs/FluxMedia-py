@@ -69,6 +69,16 @@ def init_dependencies():
     PromptBase.render_default = _custom_render_default
     console = Console()
 
+def clear_screen():
+    """Clears the terminal screen."""
+    if sys.platform.startswith('win'):
+        os.system('cls')
+    else:
+        if console:
+            console.clear()
+        else:
+            os.system('clear')
+
 def install_python_package(pkg_name: str) -> bool:
     """Installs a python package using pip, showing clear output."""
     try:
@@ -362,6 +372,7 @@ def check_fluxmedia_update_sync():
                 console.print("1. Update Now")
                 console.print("2. Continue with Current Version")
                 choice = Prompt.ask("Choose an option", choices=["1", "2"], default="2")
+                clear_screen()
                 
                 if choice == "1":
                     operation_update_fluxmedia()
@@ -814,10 +825,7 @@ def apply_common_ydl_opts(ydl_opts: Dict[str, Any], config: Dict[str, Any]) -> D
 
 def print_header():
     """Renders a modern, professional, and visually stunning dashboard header."""
-    if sys.platform.startswith('win'):
-        os.system('cls')
-    else:
-        console.clear()
+    clear_screen()
     
     detected_os = detect_os()
     
@@ -1721,13 +1729,15 @@ def operation_troubleshooting_guide():
         console.print("10. macOS-specific issues (Gatekeeper, Homebrew setup)")
         console.print("11. Linux-specific issues (Keyring locks, Missing Pip)")
         console.print("12. Termux-specific issues (Wake locks, Compilers)")
-        console.print("13. Return to Main Menu")
+        console.print("13. 'externally-managed-environment' error on pip install")
+        console.print("14. Return to Main Menu")
         
         console.print("\n[dim]🔗 Detailed troubleshooting guide online: https://github.com/pdev-labs/FluxMedia-py#troubleshooting[/dim]\n")
         
-        choice = Prompt.ask("Choose an option", choices=[str(i) for i in range(1, 14)], default="13")
+        choice = Prompt.ask("Choose an option", choices=[str(i) for i in range(1, 15)], default="14")
+        clear_screen()
         
-        if choice == "13":
+        if choice == "14":
             break
             
         print_header()
@@ -1848,6 +1858,21 @@ def operation_troubleshooting_guide():
                 "If packages fail to compile, download standard tools:\n"
                 "  [cyan]pkg install build-essential python-clang[/cyan]"
             )
+        elif choice == "13":
+            title = "Externally Managed Environment (PEP 668)"
+            help_text = (
+                "[bold yellow]Problem:[/bold yellow] running [bold]pip install fluxmedia[/bold] fails with:\n"
+                "  [bold red]error: externally-managed-environment[/bold red]\n\n"
+                "[bold green]Solutions:[/bold green]\n"
+                "1. [bold white]Use pipx (Recommended):[/bold white] Install and run via pipx which manages isolated virtual environments automatically:\n"
+                "   [cyan]pipx install fluxmedia[/cyan]\n"
+                "2. [bold white]Use a Virtual Environment:[/bold white] Create a virtual environment first, activate it, and then run pip:\n"
+                "   [cyan]python3 -m venv .venv[/cyan]\n"
+                "   [cyan]source .venv/bin/activate[/cyan] (or [cyan].venv\\Scripts\\activate[/cyan] on Windows)\n"
+                "   [cyan]pip install fluxmedia[/cyan]\n"
+                "3. [bold white]Override (Not Recommended):[/bold white] Force install using the break-system-packages flag:\n"
+                "   [cyan]pip install fluxmedia --break-system-packages[/cyan]"
+            )
             
         console.print(Panel(
             help_text,
@@ -1896,6 +1921,7 @@ def operation_view_history():
     console.print("1. Back to Main Menu")
     console.print("2. Clear All History")
     choice = Prompt.ask("Choose an option", choices=["1", "2"], default="1")
+    clear_screen()
     
     if choice == "2":
         if Confirm.ask("Are you sure you want to clear the entire download history?"):
@@ -1932,6 +1958,7 @@ def operation_settings(config: Dict[str, Any]) -> Dict[str, Any]:
             subtitle="[italic yellow]ℹ️  Tip: Use VLC Media Player for best compatibility with various media formats.[/italic yellow]"
         ))
         choice = Prompt.ask("Select an option to edit", choices=[str(i) for i in range(1, 15)], default="14")
+        clear_screen()
         
         if choice == "1":
             new_dir = Prompt.ask("Enter new download folder path", default=config["download_dir"])
@@ -2288,6 +2315,7 @@ def handle_post_download_options(config: Dict[str, Any], dest_dir: str):
         console.print("1. Open Downloads Folder")
         console.print("2. Continue to Main Menu")
         choice = Prompt.ask("Choose an option", choices=["1", "2"], default="2")
+        clear_screen()
         
         if choice == "1":
             open_folder(config, dest_dir)
@@ -2406,6 +2434,7 @@ def operation_search_and_download_video(config: Dict[str, Any]):
             choices.append("C")
             
             choice_input = Prompt.ask("Choose option(s) [dim](e.g. 1 3, 'N' for next, or 'C' to cancel)[/dim]", default="C").strip()
+            clear_screen()
             
             if choice_input.upper() == "C":
                 console.print("[yellow]Search download cancelled.[/yellow]")
@@ -2954,6 +2983,7 @@ def operation_download_queue(config: Dict[str, Any]):
         console.print("8. Return to Main Menu")
         
         choice = Prompt.ask("Choose an option", choices=["1", "2", "3", "4", "5", "6", "7", "8"], default="8")
+        clear_screen()
         
         if choice == "1":
             process_download_queue(config)
@@ -3080,6 +3110,7 @@ def operation_updates_manager(config: Dict[str, Any]):
         console.print("4. Back to Main Menu")
         
         choice = Prompt.ask("Choose an option", choices=["1", "2", "3", "4"], default="4")
+        clear_screen()
         
         if choice == "1":
             operation_update_ytdlp()
@@ -3178,6 +3209,7 @@ def main():
         ))
         
         choice = Prompt.ask("Choose an option", choices=[str(i) for i in range(1, 19)], default="18")
+        clear_screen()
         
         try:
             if choice == "1":
