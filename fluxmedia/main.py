@@ -95,17 +95,22 @@ def blink_warning():
     import sys
     
     # Move to a new line first so we don't overwrite the prompt inline
-    if console:
-        console.print()
-    else:
-        sys.stdout.write("\n")
-        sys.stdout.flush()
+    sys.stdout.write("\n")
+    sys.stdout.flush()
         
     message = "⚠️ Keyboard interruption detected. Press the interruption key (Ctrl+C) twice to exit."
-    if console and console.width < len(message) + 2:
+    
+    # Get terminal width safely
+    try:
+        import shutil
+        terminal_width = shutil.get_terminal_size().columns
+    except Exception:
+        terminal_width = 80
+        
+    if terminal_width < len(message) + 2:
         message = "⚠️ Ctrl+C detected! Press again to exit."
         
-    blank = " " * len(message)
+    blank = " " * (len(message) + 5)  # add extra padding to ensure complete erasure
     
     try:
         # Hide cursor
@@ -114,32 +119,42 @@ def blink_warning():
     except Exception:
         pass
         
+    bold_yellow = "\033[1;33m"
+    reset = "\033[0m"
+    
     try:
         for i in range(10):  # 10 half-second periods = 5 seconds
             if i % 2 == 0:
-                if console:
-                    console.print(f"\r[bold yellow]{message}[/bold yellow]", end="")
-                else:
-                    sys.stdout.write(f"\r{message}")
+                sys.stdout.write(f"\r{bold_yellow}{message}{reset}")
             else:
-                if console:
-                    console.print(f"\r{blank}", end="")
-                else:
-                    sys.stdout.write(f"\r{blank}")
+                sys.stdout.write(f"\r{blank}")
             sys.stdout.flush()
             time.sleep(0.5)
             
         # Clean up the line at the end
-        if console:
-            console.print(f"\r{blank}\r", end="")
-        else:
-            sys.stdout.write(f"\r{blank}\r")
+        sys.stdout.write(f"\r{blank}\r")
         sys.stdout.flush()
+    except KeyboardInterrupt:
+        # User pressed Ctrl+C again while it was blinking! Exit cleanly!
+        sys.stdout.write(f"\r{blank}\r")
+        sys.stdout.flush()
+        try:
+            sys.stdout.write("\033[?25h")
+            sys.stdout.flush()
+        except Exception:
+            pass
+        if console:
+            console.print("[bold green]Thank you for using FluxMedia! Goodbye.[/bold green]")
+        else:
+            print("Thank you for using FluxMedia! Goodbye.")
+        sys.exit(0)
     finally:
         try:
             # Show cursor
             sys.stdout.write("\033[?25h")
             sys.stdout.flush()
+        except Exception:
+            pass
         except Exception:
             pass
 
@@ -318,7 +333,7 @@ try:
     from importlib.metadata import version
     CURRENT_VERSION = version("fluxmedia")
 except Exception:
-    CURRENT_VERSION = "1.5.2"
+    CURRENT_VERSION = "1.5.3"
 
 LATEST_VERSION = None
 LAST_INTERRUPT_TIME = 0.0

@@ -4,6 +4,12 @@ All notable changes to the **FluxMedia** project are documented in this file.
 
 ---
 
+## [v1.5.3] - 2026-06-28
+### Fixed
+- **Blinking Warning Low-Level Carriage Returns**: Reimplemented the blinking warning using raw low-level `sys.stdout.write` and standard ANSI escape color codes to bypass virtual screen formatting that caused double printed lines. Added an internal `KeyboardInterrupt` handler during blinking to gracefully capture secondary Ctrl+C double-presses and exit cleanly.
+
+---
+
 ## [v1.5.2] - 2026-06-28
 ### Fixed
 - **Blinking Warning Wrapping**: Fixed inline carriage return wrapping overlap by prepending a newline, forcing the blinking warning message to display and erase cleanly on a fresh line.
