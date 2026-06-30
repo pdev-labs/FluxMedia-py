@@ -4,6 +4,12 @@ All notable changes to the **FluxMedia** project are documented in this file.
 
 ---
 
+## [v1.5.5] - 2026-06-30
+### Changed
+- **Version Release Sync**: Share via QR-Code streaming fixed.
+
+---
+
 ## [v1.5.4] - 2026-06-28
 ### Changed
 - **Version Release Sync**: Bumped the release version to synchronize package updates with PyPI.
