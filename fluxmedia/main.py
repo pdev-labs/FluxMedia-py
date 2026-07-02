@@ -1651,8 +1651,941 @@ def operation_share_via_qr(config: Dict[str, Any]):
     try:
         os.chdir(dest_dir)
         class SilentHandler(SimpleHTTPRequestHandler):
+            HTML_TEMPLATE = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FluxMedia LAN Share</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Default Theme: Dark Mode */
+        :root {
+            --bg-color: #0b0f19;
+            --header-bg: #111827;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --card-hover-border: #6366f1;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #4f46e5;
+            --accent-light: #818cf8;
+            --accent-hover: #4338ca;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --badge-bg: rgba(99, 102, 241, 0.15);
+            --badge-text: #818cf8;
+            --input-bg: #1e293b;
+            --input-border: #334155;
+            --input-text: #f8fafc;
+            --modal-bg: #0f172a;
+            --modal-border: #1e293b;
+        }
+
+        /* Light Mode overrides */
+        :root.light {
+            --bg-color: #f8fafc;
+            --header-bg: #ffffff;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --card-hover-border: #4f46e5;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --accent: #4f46e5;
+            --accent-light: #4f46e5;
+            --accent-hover: #3730a3;
+            --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --badge-bg: rgba(79, 70, 229, 0.1);
+            --badge-text: #4f46e5;
+            --input-bg: #ffffff;
+            --input-border: #cbd5e1;
+            --input-text: #0f172a;
+            --modal-bg: #ffffff;
+            --modal-border: #e2e8f0;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+        
+        /* Top Navigation Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .brand-icon {
+            color: var(--accent-light);
+        }
+        
+        .brand-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        
+        .theme-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        
+        .theme-btn:hover {
+            border-color: var(--card-hover-border);
+            transform: scale(1.05);
+        }
+        
+        /* Statistics Dashboard */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+            width: 100%;
+        }
+        
+        .stat-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-val {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-lbl {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Controls Row (Search, Filters, Sort) */
+        .controls-row {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+            width: 100%;
+        }
+        
+        .search-container {
+            position: relative;
+            width: 100%;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            color: var(--input-text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .search-input:focus {
+            border-color: var(--card-hover-border);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+        
+        .actions-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 0.25rem;
+            background-color: var(--card-bg);
+            padding: 0.25rem;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+        }
+        
+        .filter-tab {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-tab:hover {
+            color: var(--text-primary);
+        }
+        
+        .filter-tab.active {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .sort-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .sort-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .sort-select {
+            padding: 0.5rem 2.25rem 0.5rem 1rem;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--input-text);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+        }
+        
+        .sort-select:focus {
+            border-color: var(--card-hover-border);
+        }
+        
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 1.75rem;
+            width: 100%;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent-gradient);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--card-hover-border);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card:hover::before {
+            opacity: 1;
+        }
+        
+        .file-icon {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: var(--badge-bg);
+            margin-bottom: 1.5rem;
+            color: var(--badge-text);
+        }
+        
+        .file-name {
+            font-size: 1.15rem;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+            word-break: break-all;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 3.45rem;
+        }
+        
+        .file-meta {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.75rem;
+            font-weight: 400;
+        }
+        
+        .card-actions {
+            margin-top: auto;
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--bg-color);
+            border-color: var(--text-secondary);
+        }
+        
+        /* Modal Video/Audio Player */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(3, 7, 18, 0.95);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .modal-content {
+            width: 100%;
+            max-width: 800px;
+            background-color: #0f172a;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #1e293b;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1e293b;
+        }
+        
+        .modal-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: #f8fafc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 85%;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.75rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+        
+        .close-btn:hover {
+            color: white;
+        }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            background-color: black;
+        }
+        
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            outline: none;
+        }
+        
+        .audio-container {
+            padding: 3rem 2rem;
+            display: flex;
+            justify-content: center;
+            background-color: #0f172a;
+        }
+        
+        .audio-container audio {
+            width: 100%;
+            outline: none;
+        }
+        
+        /* Player Navigation & Speed Controls */
+        .player-controls {
+            padding: 1rem 1.5rem;
+            background-color: #0f172a;
+            border-top: 1px solid #1e293b;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .control-group-left {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .control-btn {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: white;
+            padding: 0.5rem 0.875rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .control-btn:hover {
+            background-color: #334155;
+            border-color: #475569;
+        }
+        
+        .control-group-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        
+        .speed-select {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: white;
+            padding: 0.4rem 1.5rem 0.4rem 0.75rem;
+            border-radius: 6px;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+        }
+
+        @media (max-width: 640px) {
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top bar with brand and theme toggle -->
+        <div class="top-bar">
+            <div class="brand">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="brand-icon"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                <span class="brand-name">FluxMedia LAN Share</span>
+            </div>
+            <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" aria-label="Toggle Theme">
+                <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon" style="display: none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+        </div>
+
+        <!-- Dashboard Statistics -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <span class="stat-val"><!-- STAT_TOTAL_FILES --></span>
+                <span class="stat-lbl">Total Files</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-val"><!-- STAT_TOTAL_VIDEOS --></span>
+                <span class="stat-lbl">Videos</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-val"><!-- STAT_TOTAL_AUDIOS --></span>
+                <span class="stat-lbl">Audios</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-val"><!-- STAT_TOTAL_SIZE --></span>
+                <span class="stat-lbl">Total Size</span>
+            </div>
+        </div>
+
+        <!-- Controls Row -->
+        <div class="controls-row">
+            <div class="search-container">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search shared files..." onkeyup="filterFiles()">
+            </div>
+            <div class="actions-group">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="setCategory('all')">All</button>
+                    <button class="filter-tab" onclick="setCategory('video')">Videos</button>
+                    <button class="filter-tab" onclick="setCategory('audio')">Audio</button>
+                    <button class="filter-tab" onclick="setCategory('other')">Others</button>
+                </div>
+                <div class="sort-container">
+                    <span class="sort-label">Sort:</span>
+                    <select id="sortSelect" class="sort-select" onchange="sortFiles()">
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="name-desc">Name (Z-A)</option>
+                        <option value="size-desc">Size (Largest)</option>
+                        <option value="size-asc">Size (Smallest)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <!-- ITEMS -->
+        </div>
+    </div>
+    
+    <!-- Video Player Modal -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title" id="videoTitle">Streaming Video</span>
+                <button class="close-btn" onclick="closeVideoModal()">&times;</button>
+            </div>
+            <div class="video-container">
+                <video id="videoPlayer" controls></video>
+            </div>
+            <div class="player-controls">
+                <div class="control-group-left">
+                    <button class="control-btn" onclick="skip(-10)">-10s</button>
+                    <button class="control-btn" onclick="skip(10)">+10s</button>
+                </div>
+                <div class="control-group-right">
+                    <span>Speed:</span>
+                    <select class="speed-select" onchange="changeSpeed(this.value)">
+                        <option value="0.5">0.5x</option>
+                        <option value="1" selected>1.0x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2.0x</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Player Modal -->
+    <div id="audioModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title" id="audioTitle">Streaming Audio</span>
+                <button class="close-btn" onclick="closeAudioModal()">&times;</button>
+            </div>
+            <div class="audio-container">
+                <audio id="audioPlayer" controls></audio>
+            </div>
+            <div class="player-controls">
+                <div class="control-group-left">
+                    <button class="control-btn" onclick="skip(-10)">-10s</button>
+                    <button class="control-btn" onclick="skip(10)">+10s</button>
+                </div>
+                <div class="control-group-right">
+                    <span>Speed:</span>
+                    <select class="speed-select" onchange="changeSpeed(this.value)">
+                        <option value="0.5">0.5x</option>
+                        <option value="1" selected>1.0x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2.0x</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const videoModal = document.getElementById('videoModal');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoTitle = document.getElementById('videoTitle');
+
+        const audioModal = document.getElementById('audioModal');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audioTitle = document.getElementById('audioTitle');
+        
+        let currentCategory = 'all';
+        let searchQuery = '';
+
+        // Initialize theme
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        if (currentTheme === 'light') {
+            document.documentElement.classList.add('light');
+            document.getElementById('sunIcon').style.display = 'none';
+            document.getElementById('moonIcon').style.display = 'block';
+        }
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('light')) {
+                document.documentElement.classList.remove('light');
+                localStorage.setItem('theme', 'dark');
+                document.getElementById('sunIcon').style.display = 'block';
+                document.getElementById('moonIcon').style.display = 'none';
+            } else {
+                document.documentElement.classList.add('light');
+                localStorage.setItem('theme', 'light');
+                document.getElementById('sunIcon').style.display = 'none';
+                document.getElementById('moonIcon').style.display = 'block';
+            }
+        }
+
+        function filterFiles() {
+            searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            applyFilterAndSearch();
+        }
+
+        function setCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.toLowerCase() === cat || 
+                    (cat === 'all' && tab.textContent === 'All') || 
+                    (cat === 'other' && tab.textContent === 'Others')) {
+                    tab.classList.add('active');
+                }
+            });
+            applyFilterAndSearch();
+        }
+
+        function applyFilterAndSearch() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                const category = card.getAttribute('data-category');
+                
+                const matchesSearch = name.includes(searchQuery);
+                const matchesCategory = currentCategory === 'all' || category === currentCategory;
+                
+                if (matchesSearch && matchesCategory) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function sortFiles() {
+            const sortVal = document.getElementById('sortSelect').value;
+            const grid = document.querySelector('.grid');
+            const cards = Array.from(grid.querySelectorAll('.card'));
+            
+            cards.sort((a, b) => {
+                if (sortVal === 'name-asc') {
+                    return a.getAttribute('data-orig-name').localeCompare(b.getAttribute('data-orig-name'));
+                } else if (sortVal === 'name-desc') {
+                    return b.getAttribute('data-orig-name').localeCompare(a.getAttribute('data-orig-name'));
+                } else if (sortVal === 'size-desc') {
+                    return parseInt(b.getAttribute('data-size')) - parseInt(a.getAttribute('data-size'));
+                } else if (sortVal === 'size-asc') {
+                    return parseInt(a.getAttribute('data-size')) - parseInt(b.getAttribute('data-size'));
+                }
+            });
+            
+            cards.forEach(card => grid.appendChild(card));
+        }
+
+        function playVideo(url, title) {
+            videoTitle.textContent = title;
+            videoPlayer.src = url;
+            videoModal.style.display = 'flex';
+            videoPlayer.play();
+            // Reset speed selector
+            document.querySelectorAll('.speed-select').forEach(sel => sel.value = '1');
+            videoPlayer.playbackRate = 1;
+        }
+
+        function closeVideoModal() {
+            videoPlayer.pause();
+            videoPlayer.src = '';
+            videoModal.style.display = 'none';
+        }
+
+        function playAudio(url, title) {
+            audioTitle.textContent = title;
+            audioPlayer.src = url;
+            audioModal.style.display = 'flex';
+            audioPlayer.play();
+            // Reset speed selector
+            document.querySelectorAll('.speed-select').forEach(sel => sel.value = '1');
+            audioPlayer.playbackRate = 1;
+        }
+
+        function closeAudioModal() {
+            audioPlayer.pause();
+            audioPlayer.src = '';
+            audioModal.style.display = 'none';
+        }
+
+        function skip(amount) {
+            if (videoModal.style.display === 'flex') {
+                videoPlayer.currentTime += amount;
+            }
+            if (audioModal.style.display === 'flex') {
+                audioPlayer.currentTime += amount;
+            }
+        }
+
+        function changeSpeed(val) {
+            const speed = parseFloat(val);
+            if (videoModal.style.display === 'flex') {
+                videoPlayer.playbackRate = speed;
+            }
+            if (audioModal.style.display === 'flex') {
+                audioPlayer.playbackRate = speed;
+            }
+        }
+
+        // Close modal when clicking outside content
+        window.onclick = function(event) {
+            if (event.target === videoModal) {
+                closeVideoModal();
+            }
+            if (event.target === audioModal) {
+                closeAudioModal();
+            }
+        }
+    </script>
+</body>
+</html>"""
+
             def log_message(self, format, *args):
                 logger.info(f"HTTP Server Access: {format % args}")
+
+            def translate_path(self, path):
+                # Check if it is a virtual stream path
+                parts = path.strip('/').split('/')
+                if len(parts) >= 2 and parts[0] == 'stream':
+                    try:
+                        file_idx = int(parts[1])
+                        files = sorted([f for f in os.listdir('.') if os.path.isfile(f)])
+                        if 0 <= file_idx < len(files):
+                            real_file = files[file_idx]
+                            return os.path.abspath(real_file)
+                    except (ValueError, IndexError):
+                        pass
+                return super().translate_path(path)
+
+            def list_directory(self, path):
+                import io
+                import html
+                import os
+                import math
+                
+                files = sorted([f for f in os.listdir('.') if os.path.isfile(f)])
+                
+                # Compute directory statistics
+                total_files = len(files)
+                total_bytes = 0
+                total_videos = 0
+                total_audios = 0
+                
+                video_exts = {'.mp4', '.mkv', '.webm', '.avi', '.mov', '.wmv', '.3gp', '.ts', '.m4v'}
+                audio_exts = {'.mp3', '.m4a', '.aac', '.opus', '.ogg', '.wav', '.flac', '.mka'}
+                
+                for filename in files:
+                    try:
+                        sz = os.path.getsize(filename)
+                        total_bytes += sz
+                    except Exception:
+                        pass
+                    ext = os.path.splitext(filename)[1].lower()
+                    if ext in video_exts:
+                        total_videos += 1
+                    elif ext in audio_exts:
+                        total_audios += 1
+
+                if total_bytes == 0:
+                    total_size_str = "0 B"
+                else:
+                    size_name = ("B", "KB", "MB", "GB", "TB")
+                    i = int(math.floor(math.log(total_bytes, 1024)))
+                    p = math.pow(1024, i)
+                    s = round(total_bytes / p, 2)
+                    total_size_str = f"{s} {size_name[i]}"
+                
+                html_items = []
+                for idx, filename in enumerate(files):
+                    size_bytes = 0
+                    try:
+                        size_bytes = os.path.getsize(filename)
+                        if size_bytes == 0:
+                            size_str = "0 B"
+                        else:
+                            size_name = ("B", "KB", "MB", "GB", "TB")
+                            i = int(math.floor(math.log(size_bytes, 1024)))
+                            p = math.pow(1024, i)
+                            s = round(size_bytes / p, 2)
+                            size_str = f"{s} {size_name[i]}"
+                    except Exception:
+                        size_str = "Unknown size"
+
+                    ext = os.path.splitext(filename)[1].lower()
+                    
+                    if ext in video_exts:
+                        file_type = "video"
+                        icon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>'
+                        action_btn = f'<button class="btn btn-primary" onclick="playVideo(\'/stream/{idx}/video{ext}\', \'{html.escape(filename, quote=True)}\')">Stream</button>'
+                    elif ext in audio_exts:
+                        file_type = "audio"
+                        icon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>'
+                        action_btn = f'<button class="btn btn-primary" onclick="playAudio(\'/stream/{idx}/audio{ext}\', \'{html.escape(filename, quote=True)}\')">Play</button>'
+                    else:
+                        file_type = "other"
+                        icon = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>'
+                        action_btn = ''
+
+                    download_url = f"/stream/{idx}/file{ext}"
+                    escaped_name = html.escape(filename)
+                    escaped_name_lower = escaped_name.lower()
+                    
+                    card_html = f"""
+            <div class="card" data-name="{escaped_name_lower}" data-category="{file_type}" data-size="{size_bytes}" data-orig-name="{escaped_name}">
+                <div class="file-icon">{icon}</div>
+                <div class="file-name" title="{escaped_name}">{escaped_name}</div>
+                <div class="file-meta">{size_str}</div>
+                <div class="card-actions">
+                    {action_btn}
+                    <a href="{download_url}" download="{escaped_name}" class="btn btn-secondary">Download</a>
+                </div>
+            </div>"""
+                    html_items.append(card_html)
+
+                if not html_items:
+                    items_content = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 5rem 0; font-size: 1.2rem;">No shared files found in the download directory.</div>'
+                else:
+                    items_content = "\n".join(html_items)
+
+                html_content = self.HTML_TEMPLATE.replace("<!-- ITEMS -->", items_content)
+                html_content = html_content.replace("<!-- STAT_TOTAL_FILES -->", str(total_files))
+                html_content = html_content.replace("<!-- STAT_TOTAL_VIDEOS -->", str(total_videos))
+                html_content = html_content.replace("<!-- STAT_TOTAL_AUDIOS -->", str(total_audios))
+                html_content = html_content.replace("<!-- STAT_TOTAL_SIZE -->", total_size_str)
+                
+                encoded = html_content.encode('utf-8', 'surrogateescape')
+                f = io.BytesIO()
+                f.write(encoded)
+                f.seek(0)
+                
+                self.send_response(200)
+                self.send_header("Content-type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(encoded)))
+                self.end_headers()
+                return f
 
             def guess_type(self, path):
                 # Ensure correct MIME types on environments like Termux (Android)
@@ -1700,6 +2633,8 @@ def operation_share_via_qr(config: Dict[str, Any]):
                 if ext in custom_types:
                     return custom_types[ext]
                 return super().guess_type(path)
+
+
                 
         # Dynamically allocate an open port starting from 8000
         httpd = None
