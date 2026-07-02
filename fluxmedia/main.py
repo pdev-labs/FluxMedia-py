@@ -4225,7 +4225,7 @@ def operation_about_creator():
     about_text = Text()
     about_text.append("\n👑 Creator & Developer:\n", style="bold cyan")
     about_text.append("  pdev-labs ", style="bold white")
-    about_text.append("(@pdev-labs)\n\n", style="bold yellow")
+    about_text.append("\n\n", style="bold yellow")
     
     about_text.append("🎓 Background:\n", style="bold cyan")
     about_text.append("  \n\n", style="white")
