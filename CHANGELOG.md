@@ -4,6 +4,15 @@ All notable changes to the **FluxMedia** project are documented in this file.
 
 ---
 
+## [v1.5.7] - 2026-07-02
+### Added
+- **Premium LAN Share Dashboard**: Replaced plain white index page with a gorgeous responsive dark/light theme web interface.
+- **Search, Filter, and Sorting**: Added instant search, file category tab filters, and size/name sorting to easily navigate shared media files.
+- **Custom Player Enhancements**: Integrated customized video and audio modals with seek buttons and speed controllers.
+- **Android Compatibility**: Designed clean virtual streaming links to fully resolve ExoPlayer URL-parsing bugs on files containing spaces, emojis, or parentheses.
+
+---
+
 ## [v1.5.6] - 2026-07-02
 ### Changed
 - **Android/Termux Sharing & Folder Printing**: Overrode standard HTTP server MIME type resolution to correctly guess streaming types (like `.mp4`, `.mkv`, etc.) on Termux. Simplified downloads directory printer on Android to output the path directly rather than attempting to launch external files app.
