@@ -2,6 +2,13 @@
 
 All notable changes to the **FluxMedia** project are documented in this file.
 
+## [v1.5.9] - 2026-07-02
+### Changed
+- **Credits & Support Info**: Updated credits section to display developer username `@pdev-labs` only, removing real name details from the codebase, CLI screens, and package manifests.
+- **PyPI Changelog**: Appended release highlights directly to the package description for transparency.
+
+---
+
 ## [v1.5.8] - 2026-07-02
 ### Added
 - **Share Portal Customization Submenu**: Added a settings panel to configure profile display name, profile image (local/URL), custom website file/folder, and password configurations directly.
