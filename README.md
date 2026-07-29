@@ -12,9 +12,9 @@
 
 ---
 
-## 📢 Latest Release: v1.7.18
+## 📢 Latest Release: v1.7.19
 
-* **Redundant Auto Release Conflict:** Removed the `.github/workflows/release.yml` GitHub Action to resolve the "failing check" (red cross) on commits caused by conflicting release managers.
+* **Website Logo Implementation:** Integrated the newly designed FluxMedia logo into the static website's navigation bar (replacing the emoji) and added it as the site favicon.
 
 
 
