@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.7.12] - 2026-07-29
+### Changed
+- **Brand Update:** Added newly designed app logo across the README, Local Share Portal, and React Web UI.
+
 ## [v1.7.11] - 2026-07-22
 ### Fixed
 - **Instagram 403 Forbidden Fix:** Fixed an issue where the Instagram Profile Downloader would fail with a `403 Forbidden` error because it was not loading the authenticated `instaloader` session. The session is now properly loaded when fetching profiles or posts.
