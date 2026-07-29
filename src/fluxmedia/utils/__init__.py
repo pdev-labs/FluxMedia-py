@@ -60,7 +60,6 @@ def register_interrupt() -> bool:
     global LAST_INTERRUPT_TIME
     """Registers a KeyboardInterrupt event. Returns True if it was a double-press within 6 seconds."""
     global LAST_INTERRUPT_TIME
-    import time
     current_time = time.time()
     if current_time - LAST_INTERRUPT_TIME < 6.0:
         return True
@@ -69,7 +68,6 @@ def register_interrupt() -> bool:
 
 def blink_warning():
     """Blinks the interruption warning message on the same line for 5 seconds."""
-    import time
     import sys
     
     # Move to a new line first so we don't overwrite the prompt inline
@@ -717,7 +715,6 @@ def prompt_destination_dir(default_dir: str) -> Optional[str]:
 
 def get_local_ip() -> str:
     """Gets the active local IP address of this device on the network, with adapters scanning fallback."""
-    import socket
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))

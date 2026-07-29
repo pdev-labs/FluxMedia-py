@@ -1,12 +1,9 @@
 
 import os
 import secrets
-import urllib.parse
-from typing import List, Dict, Any
-from fastapi import FastAPI, Depends, HTTPException, Query, Request
+from typing import Dict, Any
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
-from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="FluxMedia Share Portal")
 

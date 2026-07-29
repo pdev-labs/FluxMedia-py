@@ -21,12 +21,9 @@ from fluxmedia.utils import *
 
 import os
 import sys
-import time
-import subprocess
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
-from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeRemainingColumn
 import yt_dlp
 from fluxmedia.downloader.utils import get_format_string, prompt_video_quality
 console = Console()

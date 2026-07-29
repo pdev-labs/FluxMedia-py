@@ -7,26 +7,15 @@ def check_input_non_blocking():
     from fluxmedia.utils import check_input_non_blocking as _cinb
     return _cinb()
 
-def get_unique_filename(path):
-    import os
-    if not os.path.exists(path):
-        return path
-    base, ext = os.path.splitext(path)
-    counter = 1
-    while os.path.exists(f"{base} ({counter}){ext}"):
-        counter += 1
-    return f"{base} ({counter}){ext}"
+def get_unique_filename(*args, **kwargs):
+    from fluxmedia.utils import get_unique_filename as _guf
+    return _guf(*args, **kwargs)
 
 import os
-import sys
-import time
-import subprocess
 from typing import Any, Dict, List, Optional
 from rich.console import Console
-from rich.prompt import Prompt, Confirm
-from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeRemainingColumn
+from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
 import yt_dlp
-from fluxmedia.downloader.utils import get_format_string, prompt_video_quality
 console = Console()
 
 class RichProgressHook:
