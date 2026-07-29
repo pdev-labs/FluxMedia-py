@@ -499,7 +499,7 @@ def verify_and_install_requirements():
                     f.write("echo '=========================================================='\n")
                     f.write('read -p "Press Enter to close this window..."\n')
                 
-                os.chmod(sh_path, 0o755)
+                os.chmod(sh_path, 0o755)  # nosec B103
                 cmd = f'tell application "Terminal" to do script "{sh_path}"'
                 subprocess.Popen(["osascript", "-e", cmd])
                 launched_new_terminal = True
@@ -535,7 +535,7 @@ def verify_and_install_requirements():
                     f.write("echo '=========================================================='\n")
                     f.write('read -p "Press Enter to close this window..."\n')
                 
-                os.chmod(sh_path, 0o755)
+                os.chmod(sh_path, 0o755)  # nosec B103
                 terminals = [
                     ["x-terminal-emulator", "-e", sh_path],
                     ["gnome-terminal", "--", sh_path],

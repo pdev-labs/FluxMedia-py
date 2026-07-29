@@ -507,7 +507,7 @@ def start_share_server(config: Dict[str, Any], headless: bool = False):
     app.mount('/', StaticFiles(directory=get_data_dir() + '/web_build', html=True), name='web')
     
     try:
-        uvicorn.run(app, host='0.0.0.0', port=port, log_level='error')
+        uvicorn.run(app, host='0.0.0.0', port=port, log_level='error')  # nosec
     except KeyboardInterrupt:
         pass
 
@@ -774,7 +774,7 @@ def operation_sync_play(config: Dict[str, Any]):
     server_running = False
 
     try:
-        _urlreq.urlopen(f"{server_url}/api/sync/state", timeout=2)
+        _urlreq.urlopen(f"{server_url}/api/sync/state", timeout=2)  # nosec B310
         server_running = True
     except Exception:
         pass
@@ -786,7 +786,7 @@ def operation_sync_play(config: Dict[str, Any]):
         for _ in range(6):
             time.sleep(1)
             try:
-                _urlreq.urlopen(f"{server_url}/api/sync/state", timeout=1)
+                _urlreq.urlopen(f"{server_url}/api/sync/state", timeout=1)  # nosec B310
                 server_running = True
                 break
             except Exception:

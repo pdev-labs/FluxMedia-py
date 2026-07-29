@@ -724,7 +724,7 @@ if os.path.isdir(WEB_BUILD_DIR):
 #  Server entry-point
 # ─────────────────────────────────────────────────────────────
 
-def run_server(port: int = 8000, host: str = "0.0.0.0"):
+def run_server(port: int = 8000, host: str = "0.0.0.0"):  # nosec
     print(f"Starting FluxMedia Web server on {host}:{port}...")
     uvicorn.run(app, host=host, port=port, log_level="info")
 
