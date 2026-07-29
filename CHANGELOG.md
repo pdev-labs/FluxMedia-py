@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.7.19] - 2026-07-29
+### Added
+- **Website Logo Implementation:** Integrated the newly designed FluxMedia logo into the static website's navigation bar (replacing the emoji) and added it as the site favicon.
+
+
+
 ## [v1.7.18] - 2026-07-29
 ### Fixed
 - **Redundant Auto Release Conflict:** Removed the `.github/workflows/release.yml` GitHub Action. It was causing a "failing check" (red cross) on commits because the workflow was attempting to create releases that were already being meticulously generated via the GitHub CLI during deployments.
