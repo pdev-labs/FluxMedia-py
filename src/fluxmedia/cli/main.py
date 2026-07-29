@@ -4,26 +4,23 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 from rich.align import Align
-from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn, DownloadColumn, TransferSpeedColumn
+from rich.progress import Progress, BarColumn, TextColumn
 from rich.markup import escape
 import os
 
 #!/usr/bin/env python3
+# pylint: disable=function-redefined
 """
 FluxMedia - Cross-platform Command-Line Media Downloader
 Supports downloading video, audio, playlist, channel videos, and subtitles.
 """
 
 import sys
-import os
-import datetime
-import json
 import logging
 import shutil
 import subprocess
-import urllib.parse
 import platform
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import Any, Dict
 from fluxmedia.downloader.core import *
 from fluxmedia.downloader.operations import *
 from fluxmedia.core import *
@@ -39,7 +36,7 @@ for stream in (sys.stdout, sys.stderr):
             pass
 
 # --- Placeholder variables for dynamic importing ---
-from rich.prompt import Prompt, Confirm, IntPrompt, PromptBase
+from rich.prompt import Prompt, Confirm
 from rich import box
 import requests
 import yt_dlp
@@ -769,7 +766,6 @@ def operation_transcode_media(config: Dict[str, Any]):
 def operation_sync_play(config: Dict[str, Any]):
     """Sync Play (Watch Party) Controller — fully integrated into Share Portal"""
     console.print("\n[bold cyan]=== SYNC PLAY (WATCH PARTY) ===[/bold cyan]\n")
-    import threading
     import time
     import urllib.request as _urlreq
 
@@ -1607,7 +1603,7 @@ def open_folder(config: Dict[str, Any], dest_dir: str) -> bool:
         if "ANDROID_ROOT" in os.environ or "TERMUX_VERSION" in os.environ:
             return open_folder_android(dest_dir)
         elif sys.platform.startswith('win'):
-            os.startfile(dest_dir) # type: ignore
+            os.startfile(dest_dir) # type: ignore # pylint: disable=no-member
             console.print("[bold green]Folder opened successfully![/bold green]")
             return True
         elif sys.platform.startswith('darwin'):
@@ -1900,7 +1896,8 @@ def operation_download_instagram_profile(config: Dict[str, Any]):
                     
                     skip_post = False
                     if attempt > 0:
-                        original_desc = progress.tasks[task].description
+                        task_obj = next((t for t in progress.tasks if t.id == task), None)
+                        original_desc = task_obj.description if task_obj else f"Task {task}"
                         user_choice = None
                         for rem in range(5, 0, -1):
                             progress.update(task, description=f"[bold red]File '{title}{ext}' exists! Skip (s) or Continue (c)? {rem}s[/bold red]")

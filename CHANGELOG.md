@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.7.13] - 2026-07-29
+### Fixed
+- **Pylint Fixes:** Resolved multiple Pylint errors in the codebase, including function redefinitions, undefined variable references, invalid sequence indexing in Rich progress tasks, and incorrect argument counts for the `get_unique_filename` utility.
+
 ## [v1.7.12] - 2026-07-29
 ### Changed
 - **Brand Update:** Added newly designed app logo across the README, Local Share Portal, and React Web UI.

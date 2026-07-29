@@ -12,9 +12,9 @@
 
 ---
 
-## 📢 Latest Release: v1.7.12
+## 📢 Latest Release: v1.7.13
 
-* **Brand Update:** Added newly designed app logo across the README, Local Share Portal, and React Web UI.
+* **Pylint Fixes:** Resolved multiple Pylint errors in the codebase, including function redefinitions, undefined variable references, invalid sequence indexing in Rich progress tasks, and incorrect argument counts for the `get_unique_filename` utility.
 
 
 

@@ -39,7 +39,6 @@ def run_ydl_download(*args, **kwargs):
     return _ryd(*args, **kwargs)
 
 
-import os
 import platform
 
 def get_data_dir():
@@ -66,7 +65,6 @@ import json
 import time
 import shutil
 import socket
-import platform
 import subprocess
 import urllib.parse
 from typing import Any, Dict, List, Optional, Union
@@ -156,17 +154,6 @@ def check_fluxmedia_update_sync():
     except Exception as e:
         logger.warning(f"Failed sync update check: {e}")
 
-def get_data_dir() -> str:
-    """Returns the path to the user's data directory for FluxMedia, creating it if needed."""
-    try:
-        data_dir = os.path.abspath(os.path.expanduser("~/.fluxmedia"))
-        os.makedirs(data_dir, exist_ok=True)
-        return data_dir
-    except Exception:
-        # Fallback if home directory is not writable
-        data_dir = os.path.abspath(".fluxmedia")
-        os.makedirs(data_dir, exist_ok=True)
-        return data_dir
 
 def get_default_download_dir() -> str:
     """Get a sensible default downloads directory, supporting Termux/Android specific paths."""
