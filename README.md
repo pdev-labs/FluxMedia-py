@@ -12,9 +12,9 @@
 
 ---
 
-## 📢 Latest Release: v1.7.14
+## 📢 Latest Release: v1.7.15
 
-* **Ruff CI/CD Fix:** Configured Ruff to ignore specific stylistic rules that were flagging false positives due to the proxy architecture.
+* **Ruff CI/CD Strictness Fix:** Explicitly restricted Ruff to check only default rules to resolve false positives on GitHub Actions.
 
 
 
