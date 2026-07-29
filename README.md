@@ -12,9 +12,9 @@
 
 ---
 
-## 📢 Latest Release: v1.7.17
+## 📢 Latest Release: v1.7.18
 
-* **Bandit CI/CD Scan Fix:** Addressed security warnings identified by Bandit in the GitHub Actions CI pipeline by adding explicit `# nosec` annotations to safely bypassed operations (`B104`, `B310`, `B103`).
+* **Redundant Auto Release Conflict:** Removed the `.github/workflows/release.yml` GitHub Action to resolve the "failing check" (red cross) on commits caused by conflicting release managers.
 
 
 
