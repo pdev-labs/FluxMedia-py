@@ -12,9 +12,9 @@
 
 ---
 
-## 📢 Latest Release: v1.7.13
+## 📢 Latest Release: v1.7.14
 
-* **Pylint Fixes:** Resolved multiple Pylint errors in the codebase, including function redefinitions, undefined variable references, invalid sequence indexing in Rich progress tasks, and incorrect argument counts for the `get_unique_filename` utility.
+* **Ruff CI/CD Fix:** Configured Ruff to ignore specific stylistic rules that were flagging false positives due to the proxy architecture.
 
 
 

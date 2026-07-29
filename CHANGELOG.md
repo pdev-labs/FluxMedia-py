@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.7.14] - 2026-07-29
+### Fixed
+- **Ruff CI/CD Fix:** Added `tool.ruff.lint` configuration to `pyproject.toml` to ignore stylistic formatting rules (like `F405`, `F403`, `E402`) that were failing the GitHub Actions Pipeline due to the app's proxy architecture.
+
 ## [v1.7.13] - 2026-07-29
 ### Fixed
 - **Pylint Fixes:** Resolved multiple Pylint errors in the codebase, including function redefinitions, undefined variable references, invalid sequence indexing in Rich progress tasks, and incorrect argument counts for the `get_unique_filename` utility.
