@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.7.16] - 2026-07-29
+### Fixed
+- **Ruff CI/CD Ruleset Fix:** Precisely restricted Ruff to its absolute defaults (`E4`, `E7`, `E9`, `F`) in `pyproject.toml` to prevent CI from spuriously enforcing line-length limitations (`E501`) that were causing false positive build failures.
+
 ## [v1.7.15] - 2026-07-29
 ### Fixed
 - **Ruff CI/CD Strictness Fix:** Explicitly restricted Ruff in `pyproject.toml` to only check default `E` and `F` rules. This resolves an issue where the GitHub Actions runner was enforcing rules like `I001` and `FA100` that were never enabled locally.

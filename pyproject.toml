@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fluxmedia"
-version = "1.7.15"
+version = "1.7.16"
 description = "A powerful, cross-platform media portal and processing toolkit."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -43,5 +43,5 @@ include-package-data = true
 "fluxmedia" = ["web_build/**/*"]
 
 [tool.ruff.lint]
-select = ["E", "F"]
+select = ["E4", "E7", "E9", "F"]
 ignore = ["F405", "F403", "E402", "E701", "F401", "F841", "F811"]

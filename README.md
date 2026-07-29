@@ -12,9 +12,9 @@
 
 ---
 
-## 📢 Latest Release: v1.7.15
+## 📢 Latest Release: v1.7.16
 
-* **Ruff CI/CD Strictness Fix:** Explicitly restricted Ruff to check only default rules to resolve false positives on GitHub Actions.
+* **Ruff CI/CD Ruleset Fix:** Precisely restricted Ruff to its absolute defaults to prevent CI from spuriously enforcing line-length limitations (`E501`) that were causing false positive build failures.
 
 
 
