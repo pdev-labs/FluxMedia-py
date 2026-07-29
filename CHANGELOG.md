@@ -1,5 +1,10 @@
 # Changelog
 
+## [v1.7.15] - 2026-07-29
+### Fixed
+- **Ruff CI/CD Strictness Fix:** Explicitly restricted Ruff in `pyproject.toml` to only check default `E` and `F` rules. This resolves an issue where the GitHub Actions runner was enforcing rules like `I001` and `FA100` that were never enabled locally.
+- **Auto Release Workflow Conflict:** Fixed by allowing the commit to naturally trigger the Auto Release pipeline without preemptively creating a release via the CLI.
+
 ## [v1.7.14] - 2026-07-29
 ### Fixed
 - **Ruff CI/CD Fix:** Added `tool.ruff.lint` configuration to `pyproject.toml` to ignore stylistic formatting rules (like `F405`, `F403`, `E402`) that were failing the GitHub Actions Pipeline due to the app's proxy architecture.
