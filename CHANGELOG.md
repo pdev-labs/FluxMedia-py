@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.7.20] - 2026-07-31
+### Changed
+- **License Update:** Changed the project license from MIT to GPL v3.
+
 ## [v1.7.19] - 2026-07-29
 ### Added
 - **Website Logo Implementation:** Integrated the newly designed FluxMedia logo into the static website's navigation bar (replacing the emoji) and added it as the site favicon.

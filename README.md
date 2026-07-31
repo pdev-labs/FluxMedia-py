@@ -12,9 +12,9 @@
 
 ---
 
-## 📢 Latest Release: v1.7.19
+## 📢 Latest Release: v1.7.20
 
-* **Website Logo Implementation:** Integrated the newly designed FluxMedia logo into the static website's navigation bar (replacing the emoji) and added it as the site favicon.
+* **License Update:** Changed the project license from MIT to GPL v3.
 
 
 
@@ -121,7 +121,7 @@ We welcome all contributions! Whether you are fixing type errors, adding new fea
 
 ## 📜 License & Credits
 
-FluxMedia is open-source software licensed under the **[MIT License](LICENSE)**.
+FluxMedia is open-source software licensed under the **[GPL v3 License](LICENSE)**.
 
 ### Credits
 - Core extraction engine powered by **[yt-dlp](https://github.com/yt-dlp/yt-dlp)**.
