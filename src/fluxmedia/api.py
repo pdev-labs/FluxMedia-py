@@ -78,6 +78,15 @@ def get_sync_clients():
         clients.append({"id": cid, "name": name})
     return {"status": "success", "clients": clients}
 
+class SyncPingRequest(BaseModel):
+    client_id: str
+    device_name: str
+
+@app.post("/api/sync/ping")
+def sync_ping(req: SyncPingRequest):
+    sync_manager.device_names[req.client_id] = req.device_name
+    return {"status": "success"}
+
 class SyncCommandRequest(BaseModel):
     client_ids: List[str]
     command: str  # "LOAD", "PLAY", "PAUSE", "SEEK"
