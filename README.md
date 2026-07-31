@@ -5,7 +5,7 @@
 
   ### A premium, cross-platform media portal and processing toolkit.
 
-  [![PyPI Version](https://img.shields.io/pypi/v/fluxmedia.svg?color=00F2FE&style=flat-square)](https://pypi.org/project/fluxmedia/) [![Supported Python Versions](https://img.shields.io/pypi/pyversions/fluxmedia.svg?style=flat-square)](https://pypi.org/project/fluxmedia/) [![License](https://img.shields.io/github/license/pdev-labs/FluxMedia.svg?style=flat-square)](LICENSE) [![Downloads](https://img.shields.io/pypi/dm/fluxmedia.svg?style=flat-square)](https://pypi.org/project/fluxmedia/) [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
+  [![PyPI Version](https://img.shields.io/pypi/v/fluxmedia.svg?color=00F2FE&style=flat-square)](https://pypi.org/project/fluxmedia/) [![Supported Python Versions](https://img.shields.io/pypi/pyversions/fluxmedia.svg?style=flat-square)](https://pypi.org/project/fluxmedia/) [![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg?style=flat-square)](LICENSE) [![Downloads](https://img.shields.io/pypi/dm/fluxmedia.svg?style=flat-square)](https://pypi.org/project/fluxmedia/) [![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
 
   FluxMedia is a production-ready media manager, automated downloader, and local streaming gateway wrapped in a responsive terminal application and web interface.
 </div>
@@ -121,7 +121,7 @@ We welcome all contributions! Whether you are fixing type errors, adding new fea
 
 ## 📜 License & Credits
 
-FluxMedia is open-source software licensed under the **[MIT License](LICENSE)**.
+FluxMedia is open-source software licensed under the **[GPLv3 License](LICENSE)**.
 
 ### Credits
 - Core extraction engine powered by **[yt-dlp](https://github.com/yt-dlp/yt-dlp)**.
