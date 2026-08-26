@@ -157,6 +157,16 @@ def apply_common_ydl_opts(ydl_opts: Dict[str, Any], config: Dict[str, Any]) -> D
         limit_bytes = limit_map.get(speed_limit)
         if limit_bytes:
             ydl_opts['ratelimit'] = limit_bytes
+
+    # Bypass YouTube anti-bot protections
+    ydl_opts['impersonate'] = True
+    if 'extractor_args' not in ydl_opts:
+        ydl_opts['extractor_args'] = {}
+    if 'youtube' not in ydl_opts['extractor_args']:
+        ydl_opts['extractor_args']['youtube'] = []
+    # Set default player client to iOS to bypass "page needs to be reloaded" challenge
+    if 'player_client=ios' not in ydl_opts['extractor_args']['youtube']:
+        ydl_opts['extractor_args']['youtube'].append('player_client=ios')
             
     return ydl_opts
 

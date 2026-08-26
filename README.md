@@ -12,9 +12,9 @@
 
 ---
 
-## 📢 Latest Release: v1.7.21
+## 📢 Latest Release: v1.7.22
 
-* **Bug Fix:** Added `quickjs` and `curl_cffi` dependencies to fix the yt-dlp "The page needs to be reloaded" extraction error when downloading from YouTube.
+* **Bug Fix:** Enabled TLS impersonation and iOS player client in yt-dlp to fully resolve the YouTube "page needs to be reloaded" challenge block.
 
 
 

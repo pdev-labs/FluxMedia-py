@@ -1,3 +1,6 @@
+## v1.7.22
+- Enabled impersonation and set YouTube client to iOS in yt-dlp configuration to resolve persistent page reload blocks.
+
 ## v1.7.21
 - Added quickjs and curl_cffi dependencies to fix YouTube 'page needs to be reloaded' extraction errors.
 
