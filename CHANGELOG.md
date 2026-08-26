@@ -1,3 +1,6 @@
+## v1.7.21
+- Added quickjs and curl_cffi dependencies to fix YouTube 'page needs to be reloaded' extraction errors.
+
 # Changelog
 
 ## [v1.7.20] - 2026-07-31

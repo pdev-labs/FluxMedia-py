@@ -12,9 +12,9 @@
 
 ---
 
-## 📢 Latest Release: v1.7.20
+## 📢 Latest Release: v1.7.21
 
-* **License Update:** Changed the project license from MIT to GPL v3.
+* **Bug Fix:** Added `quickjs` and `curl_cffi` dependencies to fix the yt-dlp "The page needs to be reloaded" extraction error when downloading from YouTube.
 
 
 
