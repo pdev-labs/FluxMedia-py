@@ -28,7 +28,7 @@
 * **Built-in LAN Sharing Gateway**: Share downloaded files instantly to any device on your local network using a built-in password-protected HTTP server with QR code access.
 * **Instagram Profile Downloader [Beta]**: Batch download media directly from Instagram profiles with our new custom extraction module.
 * **Advanced Post-Processing**: Automatically extract audio (MP3/M4A/FLAC), merge separate audio/video formats, inject descriptions and tags, and embed album artwork via FFmpeg.
-* **Universal OS Support**: The one-liner `install.sh` script automatically resolves dependencies across macOS (brew), Android Termux (pkg), and virtually all Linux package managers (`apt`, `pacman`, `dnf`, `apk`, `zypper`, `xbps`).
+* **Universal OS Support**: The cross-platform `install.py` script automatically resolves dependencies across Windows (winget), macOS (brew), Android Termux (pkg), and virtually all Linux package managers (`apt`, `pacman`, `dnf`, `apk`, `zypper`, `xbps`).
 
 ---
 
@@ -45,14 +45,11 @@
 
 ### 1. Installation
 
-**Linux / macOS (Bash):**
+**Windows / Linux / macOS / Termux:**
+Ensure Python 3 is installed, then download and run the installer:
 ```bash
-curl -sL https://raw.githubusercontent.com/pdev-labs/FluxMedia/main/install.sh | bash
-```
-
-**Windows (PowerShell):**
-```powershell
-iex (irm https://raw.githubusercontent.com/pdev-labs/FluxMedia/main/install.ps1)
+wget https://raw.githubusercontent.com/pdev-labs/FluxMedia/main/install.py
+python3 install.py
 ```
 
 Alternatively, you can install directly via `pip`:
