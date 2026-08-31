@@ -57,34 +57,35 @@ def get_os_info():
     return system
 
 # --- Actions ---
-def install_ffmpeg():
+def install_system_dependencies():
     os_name = get_os_info()
-    print_color("\nInstalling FFmpeg...", CYAN)
+    print_color("\nInstalling System Dependencies (FFmpeg & Node.js)...", CYAN)
     
     if os_name == 'Termux':
-        run_command(['pkg', 'install', 'ffmpeg', '-y'])
+        run_command(['pkg', 'install', 'ffmpeg', 'nodejs', '-y'])
     elif os_name == 'Darwin':
-        run_command(['brew', 'install', 'ffmpeg'])
+        run_command(['brew', 'install', 'ffmpeg', 'node'])
     elif os_name == 'Windows':
         run_command(['winget', 'install', '-e', '--id', 'Gyan.FFmpeg', '--accept-package-agreements', '--accept-source-agreements'])
+        run_command(['winget', 'install', '-e', '--id', 'OpenJS.NodeJS', '--accept-package-agreements', '--accept-source-agreements'])
     elif os_name == 'Linux':
         if shutil.which('apt'):
             run_command(['apt', 'update'], sudo=True)
-            run_command(['apt', 'install', 'ffmpeg', '-y'], sudo=True)
+            run_command(['apt', 'install', 'ffmpeg', 'nodejs', '-y'], sudo=True)
         elif shutil.which('pacman'):
-            run_command(['pacman', '-Sy', 'ffmpeg', '--noconfirm'], sudo=True)
+            run_command(['pacman', '-Sy', 'ffmpeg', 'nodejs', '--noconfirm'], sudo=True)
         elif shutil.which('dnf'):
-            run_command(['dnf', 'install', 'ffmpeg', '-y'], sudo=True)
+            run_command(['dnf', 'install', 'ffmpeg', 'nodejs', '-y'], sudo=True)
         elif shutil.which('zypper'):
-            run_command(['zypper', 'install', '-y', 'ffmpeg'], sudo=True)
+            run_command(['zypper', 'install', '-y', 'ffmpeg', 'nodejs'], sudo=True)
         elif shutil.which('apk'):
-            run_command(['apk', 'add', 'ffmpeg'], sudo=True)
+            run_command(['apk', 'add', 'ffmpeg', 'nodejs'], sudo=True)
         elif shutil.which('xbps-install'):
-            run_command(['xbps-install', '-Sy', 'ffmpeg'], sudo=True)
+            run_command(['xbps-install', '-Sy', 'ffmpeg', 'nodejs'], sudo=True)
         else:
-            print_color("Unsupported package manager on Linux. Please install FFmpeg manually.", RED)
+            print_color("Unsupported package manager on Linux. Please install FFmpeg and Node.js manually.", RED)
     else:
-        print_color("Unsupported OS. Please install FFmpeg manually.", RED)
+        print_color("Unsupported OS. Please install FFmpeg and Node.js manually.", RED)
 
 def uninstall_ffmpeg():
     os_name = get_os_info()
@@ -161,7 +162,7 @@ def main():
         ])
         
         if choice == 1:
-            install_ffmpeg()
+            install_system_dependencies()
             install_fluxmedia()
             print_color("\nSuccess! FluxMedia is installed.", GREEN)
             print("Run 'fluxmedia' in your terminal to start.")
@@ -179,7 +180,7 @@ def main():
             elif sub == 2:
                 uninstall_fluxmedia()
                 uninstall_ffmpeg()
-                install_ffmpeg()
+                install_system_dependencies()
                 install_fluxmedia()
                 input("\nPress Enter to return to menu...")
             elif sub == 3:

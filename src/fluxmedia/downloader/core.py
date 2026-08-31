@@ -164,8 +164,8 @@ def run_ydl_download(ydl_opts: Dict[str, Any], urls: List[str], downloaded_files
 def apply_common_ydl_opts(ydl_opts: Dict[str, Any], config: Dict[str, Any]) -> Dict[str, Any]:
     """Applies common configuration parameters (cookies, speed limits) to yt-dlp options."""
     # 1. Cookies Browser
-    cookies_browser = config.get("cookies_browser", "none")
-    if cookies_browser != "none":
+    cookies_browser = config.get("cookies_browser")
+    if cookies_browser and str(cookies_browser).lower() != "none":
         ydl_opts['cookiesfrombrowser'] = (cookies_browser,)
         
     # 2. Download Speed Limit
@@ -182,7 +182,6 @@ def apply_common_ydl_opts(ydl_opts: Dict[str, Any], config: Dict[str, Any]) -> D
             ydl_opts['ratelimit'] = limit_bytes
 
     # Bypass YouTube anti-bot protections
-    ydl_opts['impersonate'] = True
     if 'extractor_args' not in ydl_opts:
         ydl_opts['extractor_args'] = {}
     if 'youtube' not in ydl_opts['extractor_args']:
