@@ -45,11 +45,21 @@
 
 ### 1. Installation
 
-**Windows / Linux / macOS / Termux:**
+**Cross-Platform (Python):**
 Ensure Python 3 is installed, then download and run the installer:
 ```bash
 wget https://raw.githubusercontent.com/pdev-labs/FluxMedia/main/install.py
 python3 install.py
+```
+
+**Linux / macOS / Termux (Bash):**
+```bash
+curl -sL https://raw.githubusercontent.com/pdev-labs/FluxMedia/main/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+iex (irm https://raw.githubusercontent.com/pdev-labs/FluxMedia/main/install.ps1)
 ```
 
 Alternatively, you can install directly via `pip`:
