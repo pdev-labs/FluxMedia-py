@@ -2123,6 +2123,10 @@ def operation_update_fluxmedia():
             pip_args.extend(["--extra-index-url", "https://eutalix.github.io/android-pydantic-core/"])
             
         result = subprocess.run(pip_args, capture_output=True, text=True)
+        if result.returncode != 0 and "externally-managed-environment" in result.stderr:
+            pip_args.append("--break-system-packages")
+            result = subprocess.run(pip_args, capture_output=True, text=True)
+            
         if result.returncode == 0:
             console.print("[bold green]Successfully updated FluxMedia![/bold green]")
             console.print("Restarting application to apply changes...\n")
@@ -2170,11 +2174,15 @@ def operation_upgrade_dependencies():
     console.print("Running: [bold cyan]pip install -U yt-dlp requests rich[/bold cyan]...")
     try:
         with console.status("[bold green]Upgrading dependencies... Please wait.", spinner="dots") as status:
+            pip_args = [sys.executable, "-m", "pip", "install", "-U", "yt-dlp", "requests", "rich"]
             result = subprocess.run(
-                [sys.executable, "-m", "pip", "install", "-U", "yt-dlp", "requests", "rich"],
+                pip_args,
                 capture_output=True,
                 text=True
             )
+            if result.returncode != 0 and "externally-managed-environment" in result.stderr:
+                pip_args.append("--break-system-packages")
+                result = subprocess.run(pip_args, capture_output=True, text=True)
             
         if result.returncode == 0:
             console.print("[bold green][SUCCESS] All dependencies upgraded successfully![/bold green]")
