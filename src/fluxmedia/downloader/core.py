@@ -186,9 +186,9 @@ def apply_common_ydl_opts(ydl_opts: Dict[str, Any], config: Dict[str, Any]) -> D
         ydl_opts['extractor_args'] = {}
     if 'youtube' not in ydl_opts['extractor_args']:
         ydl_opts['extractor_args']['youtube'] = []
-    # Set default player client to iOS to bypass "page needs to be reloaded" challenge
-    if 'player_client=ios' not in ydl_opts['extractor_args']['youtube']:
-        ydl_opts['extractor_args']['youtube'].append('player_client=ios')
+    # Set default player client to iOS and Web to bypass "page needs to be reloaded" challenge
+    if 'player_client=ios,web' not in ydl_opts['extractor_args']['youtube']:
+        ydl_opts['extractor_args']['youtube'].append('player_client=ios,web')
             
     return ydl_opts
 
