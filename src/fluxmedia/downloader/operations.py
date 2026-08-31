@@ -111,7 +111,7 @@ def operation_download_video(config: Dict[str, Any]):
             title = "Unknown Video"
             
             try:
-                with yt_dlp.YoutubeDL({'quiet': True, 'no_warnings': True}) as ydl:
+                with yt_dlp.YoutubeDL(apply_common_ydl_opts({'quiet': True, 'no_warnings': True}, config)) as ydl:
                     info = ydl.extract_info(url, download=False)
                     title = info.get('title', 'Unknown Video')
                     console.print(f"[bold]Title:[/bold] {escape(title)}")
@@ -228,7 +228,7 @@ def operation_download_audio(config: Dict[str, Any]):
             title = "Unknown Audio"
             info = {}
             try:
-                with yt_dlp.YoutubeDL({'quiet': True, 'no_warnings': True}) as ydl:
+                with yt_dlp.YoutubeDL(apply_common_ydl_opts({'quiet': True, 'no_warnings': True}, config)) as ydl:
                     info = ydl.extract_info(url, download=False)
                     title = info.get('title', 'Unknown Audio')
                     console.print(f"[bold]Title:[/bold] {escape(title)}")

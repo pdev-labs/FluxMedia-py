@@ -14,6 +14,7 @@ def get_unique_filename(*args, **kwargs):
 import os
 from typing import Any, Dict, List, Optional
 from rich.console import Console
+from rich.prompt import Prompt
 from rich.progress import Progress, BarColumn, TextColumn, TimeRemainingColumn
 import yt_dlp
 console = Console()
@@ -118,25 +119,47 @@ def run_ydl_download(ydl_opts: Dict[str, Any], urls: List[str], downloaded_files
                     
                 return [], info
 
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.add_post_processor(InteractiveRenamePP(), when='pre_process')
-                return_code = ydl.download(urls)
-            return return_code == 0
-        except yt_dlp.utils.DownloadCancelled:
-            logger.info("Download cancelled by user via skip.")
-            console.print("[bold yellow]Download skipped by user.[/bold yellow]")
-            return True
-        except KeyboardInterrupt:
-            logger.warning('Download interrupted by user (KeyboardInterrupt).')
-            console.print('\n[bold yellow]Download cancelled by user.[/bold yellow]')
-            raise KeyboardInterrupt
-        except Exception as e:
-            logger.error(f'yt-dlp download execution encountered an error: {e}', exc_info=True)
-            console.print(f'\n[bold red]Download Error: {e}[/bold red]')
-            if ydl_opts.get('cookiesfrombrowser'):
-                console.print("[cyan]💡 Tip: If you get browser cookie access errors, try changing 'Cookies Browser' to 'none' in Settings.[/cyan]")
-            return False
+        while True:
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    ydl.add_post_processor(InteractiveRenamePP(), when='pre_process')
+                    return_code = ydl.download(urls)
+                return return_code == 0
+            except yt_dlp.utils.DownloadCancelled:
+                logger.info("Download cancelled by user via skip.")
+                console.print("[bold yellow]Download skipped by user.[/bold yellow]")
+                return True
+            except KeyboardInterrupt:
+                logger.warning('Download interrupted by user (KeyboardInterrupt).')
+                console.print('\n[bold yellow]Download cancelled by user.[/bold yellow]')
+                raise KeyboardInterrupt
+            except Exception as e:
+                error_str = str(e).lower()
+                if any(k in error_str for k in ["sign in", "cookie", "private video", "authentication", "login"]):
+                    console.print(f'\n[bold red]Authentication Error: {e}[/bold red]')
+                    choice = Prompt.ask("Cookie required. Enter browser name (chrome, edge, firefox, etc.), path to cookies.txt, or 'skip'").strip()
+                    if choice.lower() == 'skip':
+                        return False
+                    elif choice.lower() in ['chrome', 'firefox', 'edge', 'safari', 'opera', 'brave']:
+                        ydl_opts['cookiesfrombrowser'] = (choice.lower(),)
+                        ydl_opts.pop('cookiefile', None)
+                        try:
+                            from fluxmedia.core import load_config, save_config
+                            cfg = load_config()
+                            cfg["cookies_browser"] = choice.lower()
+                            save_config(cfg)
+                        except Exception:
+                            pass
+                    elif choice:
+                        ydl_opts['cookiefile'] = choice
+                        ydl_opts.pop('cookiesfrombrowser', None)
+                    continue
+                
+                logger.error(f'yt-dlp download execution encountered an error: {e}', exc_info=True)
+                console.print(f'\n[bold red]Download Error: {e}[/bold red]')
+                if ydl_opts.get('cookiesfrombrowser'):
+                    console.print("[cyan]💡 Tip: If you get browser cookie access errors, try changing 'Cookies Browser' to 'none' in Settings.[/cyan]")
+                return False
 
 def apply_common_ydl_opts(ydl_opts: Dict[str, Any], config: Dict[str, Any]) -> Dict[str, Any]:
     """Applies common configuration parameters (cookies, speed limits) to yt-dlp options."""
